@@ -91,7 +91,12 @@
 
         function populateTeacherSelect() {
             // Tüm öğretmenleri benzersiz olarak al ve sırala
-            const teachers = [...new Set(allData.map(item => item['Adı Soyadı']))].sort();
+            const teachers = [...new Set(allData.map(item => {
+                // Hem 'Adı' hem de 'Soyadı' sütunlarını birleştir
+                const ad = item['Adı'] || '';
+                const soyad = item['Soyadı'] || '';
+                return `${ad} ${soyad}`.trim();
+            }))].sort();
             
             teachers.forEach(teacher => {
                 if (teacher && teacher.trim()) { // Boş isimleri atla
@@ -108,12 +113,13 @@
                 const selectedTeacher = this.value;
                 
                 if (selectedTeacher) {
-                    const filteredData = allData.filter(item => 
-                        item['Adı Soyadı'] === selectedTeacher
-                    );
+                    const filteredData = allData.filter(item => {
+                        const fullName = `${item['Adı'] || ''} ${item['Soyadı'] || ''}`.trim();
+                        return fullName === selectedTeacher;
+                    });
                     displayData(filteredData);
                 } else {
-                    displayData(allData); // Hiçbir seçim yoksa tüm verileri göster
+                    displayData(allData);
                 }
             });
         }
