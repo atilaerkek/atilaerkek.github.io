@@ -86,18 +86,18 @@
                 setupEventListeners();
             } catch (error) {
                 console.error('Veri yüklenirken hata oluştu:', error);
+                document.getElementById('results').innerHTML = '<p>Veri yüklenirken hata oluştu. Lütfen sayfayı yenileyin.</p>';
             }
         }
 
         function populateTeacherSelect() {
             // Tüm öğretmenleri benzersiz olarak al ve sırala
-            const teachers = [...new Set(allData.map(item => {
-                // Hem 'Adı' hem de 'Soyadı' sütunlarını birleştir
-                const ad = item['Adı'] || '';
-                const soyad = item['Soyadı'] || '';
-                return `${ad} ${soyad}`.trim();
-            }))].sort();
+            const teachers = [...new Set(allData.map(item => item['Adı Soyadı']))].sort();
             
+            // Önce select'i temizle
+            teacherSelect.innerHTML = '<option value="">Tüm Öğretmenler</option>';
+            
+            // Öğretmenleri ekle
             teachers.forEach(teacher => {
                 if (teacher && teacher.trim()) { // Boş isimleri atla
                     const option = document.createElement('option');
@@ -113,10 +113,9 @@
                 const selectedTeacher = this.value;
                 
                 if (selectedTeacher) {
-                    const filteredData = allData.filter(item => {
-                        const fullName = `${item['Adı'] || ''} ${item['Soyadı'] || ''}`.trim();
-                        return fullName === selectedTeacher;
-                    });
+                    const filteredData = allData.filter(item => 
+                        item['Adı Soyadı'] === selectedTeacher
+                    );
                     displayData(filteredData);
                 } else {
                     displayData(allData);
@@ -133,14 +132,28 @@
                 const currentLine = lines[i].trim();
                 if (!currentLine) continue;
                 
-                // Virgülle ayrılmış değerleri düzgün şekilde ayır
-                const values = currentLine.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+                // Virgülle ayrılmış değerleri düzgün şekilde ayır (tırnak içindeki virgülleri koru)
+                let values = [];
+                let inQuotes = false;
+                let currentValue = '';
+                
+                for (let char of currentLine) {
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(currentValue);
+                        currentValue = '';
+                    } else {
+                        currentValue += char;
+                    }
+                }
+                values.push(currentValue); // Son değeri ekle
                 
                 if (values.length > 0) {
                     const obj = {};
                     values.forEach((value, index) => {
                         if (index < headers.length) {
-                            // Tırnak işaretlerini kaldır
+                            // Tırnak işaretlerini ve boşlukları temizle
                             obj[headers[index]] = value.replace(/^"|"$/g, '').trim();
                         }
                     });
