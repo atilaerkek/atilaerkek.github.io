@@ -23,6 +23,12 @@
             padding: 10px;
             background: #f8f9fa;
             border-radius: 5px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        select {
+            min-width: 200px;
         }
         input, select {
             padding: 8px;
@@ -67,9 +73,18 @@
         <h1>BTR Öğretmen Evrakları Filtreleme</h1>
         
         <div class="filters">
-            <select id="nameSelect">
-                <option value="">İsim Seçiniz...</option>
-            </select>
+            <div>
+                <label for="districtSelect">İlçe:</label>
+                <select id="districtSelect">
+                    <option value="">İlçe Seçiniz...</option>
+                </select>
+            </div>
+            <div>
+                <label for="teacherSelect">Öğretmen:</label>
+                <select id="teacherSelect" disabled>
+                    <option value="">Öğretmen Seçiniz...</option>
+                </select>
+            </div>
         </div>
 
         <div id="results">
@@ -79,39 +94,91 @@
 
     <script>
         let allData = []; // Tüm verileri tutacak global değişken
+        const districtSelect = document.getElementById('districtSelect');
+        const teacherSelect = document.getElementById('teacherSelect');
 
         async function loadData() {
             try {
                 const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vTct9lak4GPJ8NHDpKwhWEKsAH6ILR_LVNahWz8Cyy9LeNuayr3y_tKnRNKHPmKhO-E3OXagvlUzwYo/pub?output=csv`);
                 const data = await response.text();
                 allData = parseCSV(data);
-                populateNameSelect(allData);
-                displayData(allData);
+                populateDistrictSelect();
+                setupEventListeners();
             } catch (error) {
                 console.error('Veri yüklenirken hata oluştu:', error);
             }
         }
 
-        // İsim seçeneklerini doldur
-        function populateNameSelect(data) {
-            const nameSelect = document.getElementById('nameSelect');
-            const names = [...new Set(data.map(item => item['Adı Soyadı']))].sort();
+        function populateDistrictSelect() {
+            // İlçeleri benzersiz olarak al ve sırala
+            const districts = [...new Set(allData.map(item => item['İlçe']))].sort();
             
-            names.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                nameSelect.appendChild(option);
+            // İlçe seçeneklerini doldur
+            districtSelect.innerHTML = '<option value="">İlçe Seçiniz...</option>';
+            districts.forEach(district => {
+                if (district) { // Boş ilçeleri atla
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    districtSelect.appendChild(option);
+                }
+            });
+        }
+
+        function updateTeacherSelect(selectedDistrict) {
+            // Seçilen ilçeye ait öğretmenleri filtrele
+            const districtTeachers = allData
+                .filter(item => item['İlçe'] === selectedDistrict)
+                .map(item => item['Adı Soyadı']);
+            
+            // Benzersiz öğretmen listesi oluştur ve sırala
+            const uniqueTeachers = [...new Set(districtTeachers)].sort();
+            
+            // Öğretmen seçeneklerini doldur
+            teacherSelect.innerHTML = '<option value="">Öğretmen Seçiniz...</option>';
+            uniqueTeachers.forEach(teacher => {
+                if (teacher) { // Boş isimleri atla
+                    const option = document.createElement('option');
+                    option.value = teacher;
+                    option.textContent = teacher;
+                    teacherSelect.appendChild(option);
+                }
+            });
+            
+            teacherSelect.disabled = false;
+        }
+
+        function setupEventListeners() {
+            // İlçe seçimi değiştiğinde
+            districtSelect.addEventListener('change', function() {
+                const selectedDistrict = this.value;
+                if (selectedDistrict) {
+                    updateTeacherSelect(selectedDistrict);
+                } else {
+                    teacherSelect.innerHTML = '<option value="">Öğretmen Seçiniz...</option>';
+                    teacherSelect.disabled = true;
+                    displayData(allData);
+                }
             });
 
-            // İsim seçildiğinde filtreleme yap
-            nameSelect.addEventListener('change', function() {
-                const selectedName = this.value;
-                if (selectedName) {
-                    const filteredData = allData.filter(item => item['Adı Soyadı'] === selectedName);
+            // Öğretmen seçimi değiştiğinde
+            teacherSelect.addEventListener('change', function() {
+                const selectedTeacher = this.value;
+                const selectedDistrict = districtSelect.value;
+                
+                if (selectedTeacher) {
+                    const filteredData = allData.filter(item => 
+                        item['İlçe'] === selectedDistrict && 
+                        item['Adı Soyadı'] === selectedTeacher
+                    );
+                    displayData(filteredData);
+                } else if (selectedDistrict) {
+                    const filteredData = allData.filter(item => 
+                        item['İlçe'] === selectedDistrict
+                    );
                     displayData(filteredData);
                 } else {
-                    displayData(allData); // Hiçbir isim seçili değilse tüm verileri göster
+                    displayData(allData);
                 }
             });
         }
@@ -123,7 +190,7 @@
             const headers = lines[0].split(',');
 
             for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue; // Boş satırları atla
+                if (!lines[i].trim()) continue;
                 
                 const obj = {};
                 const currentline = lines[i].split(',');
