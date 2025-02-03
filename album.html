@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resim Albümü</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 50px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        h1 {
+            color: #333;
+        }
+        .album {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .album img {
+            max-width: 200px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resim Albümü</h1>
+        <div class="album" id="album">
+            <!-- Images will be displayed here -->
+        </div>
+    </div>
+    <script>
+        fetch('resim')
+        .then(response => response.json())
+        .then(images => {
+            const album = document.getElementById('album');
+            images.forEach(image => {
+                const imgElement = document.createElement('img');
+                imgElement.src = 'resim/' + image;
+                album.appendChild(imgElement);
+            });
+        });
+    </script>
+</body>
+</html>
