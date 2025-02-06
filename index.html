@@ -24,6 +24,12 @@
         .links {
             margin-top: 20px;
         }
+        .icon {
+            display: inline-block;
+            width: 24px;
+            text-align: center;
+            margin-right: 5px;
+        }
         a {
             display: block;
             margin: 10px auto;
@@ -32,10 +38,23 @@
             color: white;
             text-decoration: none;
             border-radius: 5px;
-            width: 200px;
+            width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
         }
         a:hover {
             background: #0056b3;
+        }
+        @media (max-width: 768px) {
+            a {
+                width: 280px;
+            }
+            
+            body {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -44,10 +63,10 @@
         <h1>Hoş Geldiniz!</h1>
         <p>Buradan ilgili sayfalara ulaşabilirsiniz:</p>
         <div class="links">
-            <a href="https://atilaerkek.github.io/kurumlar/">📂 Kurumlar Sayfası</a>
-            <a href="https://atilaerkek.github.io/ekders/">📂 Ek Ders Sayfası</a>
-            <a href="https://atilaerkek.github.io/filter/filter.html">📁 BTR Öğretmen Evrakları</a>
-            <a href="https://atilaerkek.github.io/url/url-saver.html">📁 URL Kaydedici</a>
+            <a href="https://atilaerkek.github.io/kurumlar/"><span class="icon">📂</span> Kurumlar Sayfası</a>
+            <a href="https://atilaerkek.github.io/ekders/"><span class="icon">📂</span> Ek Ders Sayfası</a>
+            <a href="filter.html"><span class="icon">📂</span> BTR Öğretmen Evrakları</a>
+            <a href="https://atilaerkek.github.io/url/url-saver.html"><span class="icon">📂</span> URL Kaydedici</a>
         </div>
     </div>
 </body>
