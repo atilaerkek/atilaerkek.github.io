@@ -1,1 +1,434 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YEĞİTEK Evrak Takip Sistemi</title>
+    <!-- Modern Yazı Tipi -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --surface-color: #ffffff;
+            --primary-color: #0f172a;
+            --accent-color: #3b82f6;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+        }
 
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Ana Konteyner */
+        .app-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Üst Başlık Alanı */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .brand p {
+            margin: 4px 0 0 0;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Kontrol Paneli (Filtreler) */
+        .controls {
+            background: var(--surface-color);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background-color: #f8fafc;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background-color: #fff;
+        }
+
+        /* Butonlar */
+        .btn-refresh {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-refresh:hover { opacity: 0.9; }
+        .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Veri Tablosu */
+        .table-container {
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex-grow: 1;
+            overflow: auto;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.925rem;
+        }
+
+        thead th {
+            background: #f8fafc;
+            padding: 14px 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .link-btn {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .link-btn:hover {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* İstatistik Çubuğu */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Yükleme Ekranı */
+        .loader {
+            display: none;
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        /* Mobil Duyarlılık */
+        @media (max-width: 640px) {
+            .app-wrapper { padding: 10px; }
+            header { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .controls { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <header>
+        <div class="brand">
+            <h1>Evrak İzleme Paneli</h1>
+            <p id="dateInfo">Yükleniyor...</p>
+        </div>
+        <button id="refreshBtn" class="btn-refresh" onclick="fetchData()">
+            <span>🔄</span> Verileri Güncelle
+        </button>
+    </header>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Arama</label>
+            <input type="text" id="searchInput" placeholder="Herhangi bir kelime ara..." oninput="applyFilters()">
+        </div>
+        <div class="control-group">
+            <label>Öğretmen Seçimi</label>
+            <select id="teacherSelect" onchange="applyFilters()">
+                <option value="">Tümü</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>Faaliyet Ayı</label>
+            <select id="monthSelect" onchange="applyFilters()">
+                <option value="">Tümü</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <span id="recordCount">Kayıtlar taranıyor...</span>
+        <span style="display: flex; align-items: center; gap: 5px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--success-color);"></span>
+            Canlı Veri Bağlantısı
+        </span>
+    </div>
+
+    <div class="table-container">
+        <div id="loading" class="loader">Veriler hazırlanıyor, lütfen bekleyin...</div>
+        <table id="dataTable">
+            <thead>
+                <tr id="tableHeaders">
+                    <!-- Başlıklar JS ile gelecek -->
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Veriler JS ile gelecek -->
+            </tbody>
+        </table>
+    </div>
+
+    <footer style="text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-muted);">
+        &copy; 2024 YEĞİTEK Veri İzleme Sistemi • Salt Okunur Erişim
+    </footer>
+</div>
+
+<script>
+    let masterData = [];
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFyMzDuK10Nx8Nq8XeGVvbAtIlMyYW7Ddv0w7hSInh5wVcPp0clGJj49qPvai7mxiBaYmZNkS3L6NP/pub?output=csv";
+
+    // Veri Çekme Fonksiyonu
+    async function fetchData() {
+        const btn = document.getElementById('refreshBtn');
+        const loading = document.getElementById('loading');
+        btn.disabled = true;
+        loading.style.display = 'block';
+
+        try {
+            const response = await fetch(`${SHEET_URL}&cache_bust=${Date.now()}`);
+            const text = await response.text();
+            masterData = parseCSV(text);
+            
+            initFilters();
+            applyFilters();
+            
+            document.getElementById('dateInfo').textContent = `Son Güncelleme: ${new Date().toLocaleTimeString('tr-TR')}`;
+        } catch (err) {
+            console.error(err);
+            document.getElementById('recordCount').textContent = "Hata: Veri çekilemedi.";
+        } finally {
+            btn.disabled = false;
+            loading.style.display = 'none';
+        }
+    }
+
+    // CSV Ayrıştırma (Gelişmiş)
+    function parseCSV(csv) {
+        const lines = csv.split('\n');
+        if (lines.length === 0) return [];
+        
+        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        const data = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            
+            const row = [];
+            let inQuotes = false;
+            let current = '';
+            
+            for (let char of lines[i]) {
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) {
+                    row.push(current.trim().replace(/^"|"$/g, ''));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            row.push(current.trim().replace(/^"|"$/g, ''));
+
+            const obj = {};
+            headers.forEach((h, idx) => obj[h] = row[idx] || '');
+            data.push(obj);
+        }
+        return data;
+    }
+
+    // Filtreleri Doldur
+    function initFilters() {
+        fillDropdown('teacherSelect', 'Adı Soyadı');
+        fillDropdown('monthSelect', 'Faaliyet Ayı');
+    }
+
+    function fillDropdown(id, key) {
+        const select = document.getElementById(id);
+        const values = [...new Set(masterData.map(d => d[key]))].filter(Boolean).sort();
+        
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">Tümü</option>';
+        values.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v;
+            opt.textContent = v;
+            select.appendChild(opt);
+        });
+        select.value = currentVal;
+    }
+
+    // Filtreleme Mantığı
+    function applyFilters() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const teacher = document.getElementById('teacherSelect').value;
+        const month = document.getElementById('monthSelect').value;
+
+        const filtered = masterData.filter(row => {
+            const matchesSearch = Object.values(row).some(val => 
+                String(val).toLowerCase().includes(search)
+            );
+            const matchesTeacher = !teacher || row['Adı Soyadı'] === teacher;
+            const matchesMonth = !month || row['Faaliyet Ayı'] === month;
+            
+            return matchesSearch && matchesTeacher && matchesMonth;
+        });
+
+        renderTable(filtered);
+    }
+
+    // Tabloyu Oluştur
+    function renderTable(data) {
+        const thead = document.getElementById('tableHeaders');
+        const tbody = document.getElementById('tableBody');
+        const count = document.getElementById('recordCount');
+
+        tbody.innerHTML = '';
+        count.textContent = `${data.length} kayıt listelendi`;
+
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center; padding:50px; color:var(--text-muted);">Eşleşen sonuç bulunamadı.</td></tr>';
+            return;
+        }
+
+        const keys = Object.keys(data[0]);
+        
+        // Başlıkları bir kez oluştur
+        if (thead.children.length === 0) {
+            keys.forEach(k => {
+                const th = document.createElement('th');
+                th.textContent = k;
+                thead.appendChild(th);
+            });
+        }
+
+        // Satırları oluştur
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            keys.forEach(k => {
+                const td = document.createElement('td');
+                const val = row[k];
+
+                if (String(val).startsWith('http')) {
+                    const a = document.createElement('a');
+                    a.href = val;
+                    a.target = '_blank';
+                    a.className = 'link-btn';
+                    a.textContent = 'Görüntüle';
+                    td.appendChild(a);
+                } else if (k.toLowerCase().includes('zaman')) {
+                    td.innerHTML = `<span class="badge">${val}</span>`;
+                } else {
+                    td.textContent = val;
+                }
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Başlat
+    window.onload = fetchData;
+</script>
+
+</body>
+</html>
