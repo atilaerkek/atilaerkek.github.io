@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijital Merkezim - İzleyici</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-light: #e8f0fe;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --border: #dadce0;
+            --shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #202124;
+                --card-bg: #2d2e30;
+                --text: #e8eaed;
+                --text-secondary: #9aa0a6;
+                --border: #3c4043;
+            }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0 20px 0;
+            gap: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            color: var(--primary);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-search {
+            flex-grow: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .header-search i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .header-search input {
+            width: 100%;
+            padding: 10px 15px 10px 35px;
+            height: 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .list-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .url-item {
+            background: var(--card-bg);
+            margin-bottom: 10px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .url-item:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .content-wrap {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .url-desc-primary {
+            font-weight: 600;
+            font-size: 17px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .url-link-secondary {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .url-link-secondary a {
+            color: var(--primary);
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .url-link-secondary a:hover {
+            text-decoration: underline;
+        }
+
+        .list-container::-webkit-scrollbar { width: 6px; }
+        .list-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h2><i class="fas fa-link"></i> Dijital Merkezim</h2>
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Bağlantılarda ara..." onkeyup="searchList()">
+            </div>
+        </div>
+
+        <div class="list-container">
+            <div id="urlList"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhgu-i_ccA6bZK3GGMKaLCJSsPRx6IC_Q",
+            authDomain: "myurlsaver.firebaseapp.com",
+            projectId: "myurlsaver",
+            storageBucket: "myurlsaver.firebasestorage.app",
+            messagingSenderId: "210165524766",
+            appId: "1:210165524766:web:deadeb5bf603b79736010f"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const linksRef = db.collection("links");
+
+        function loadURLs() {
+            linksRef.orderBy("order", "asc").onSnapshot((snapshot) => {
+                const list = document.getElementById('urlList');
+                list.innerHTML = '';
+
+                if (snapshot.empty) {
+                    list.innerHTML = '<p style="text-align:center; padding:20px; color:gray;">Henüz paylaşılmış bir bağlantı yok.</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const item = document.createElement('div');
+                    item.className = 'url-item';
+                    
+                    let formattedUrl = data.url || '';
+                    if (formattedUrl && !formattedUrl.startsWith('http') && formattedUrl.includes('.')) {
+                        formattedUrl = 'https://' + formattedUrl;
+                    }
+
+                    item.innerHTML = `
+                        <div class="content-wrap">
+                            <div class="url-desc-primary">${data.aciklama || 'İsimsiz'}</div>
+                            <div class="url-link-secondary">
+                                <a href="${formattedUrl}" target="_blank">${data.url}</a>
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            });
+        }
+
+        function searchList() {
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.url-item').forEach(item => {
+                const text = item.innerText.toLowerCase();
+                item.style.display = text.includes(val) ? 'flex' : 'none';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadURLs);
+    </script>
+</body>
+</html>
