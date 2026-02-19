@@ -283,53 +283,62 @@
 
         async function loadURLs() {
             try {
-                const snapshot = await linksRef.orderBy("order", "asc").get();
-                const list = document.getElementById('urlList');
-                list.innerHTML = '';
+                // Real-time listener kullanarak daha hızlı tepki veriyoruz
+                linksRef.orderBy("order", "asc").onSnapshot((snapshot) => {
+                    const list = document.getElementById('urlList');
+                    list.innerHTML = '';
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const item = document.createElement('div');
-                    item.className = 'url-item';
-                    item.dataset.id = doc.id;
-                    item.innerHTML = `
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const item = document.createElement('div');
+                        item.className = 'url-item';
+                        item.dataset.id = doc.id;
                         
-                        <div class="view-state" id="view-${doc.id}">
-                            <div class="content-wrap">
-                                <div class="url-desc-primary">${data.aciklama || 'İsimsiz'}</div>
-                                <div class="url-link-secondary">
-                                    ${data.url.startsWith('http') ? `<a href="${data.url}" target="_blank">${data.url}</a>` : `<span>${data.url}</span>`}
+                        let formattedUrl = data.url || '';
+                        if (formattedUrl && !formattedUrl.startsWith('http') && formattedUrl.includes('.')) {
+                            formattedUrl = 'https://' + formattedUrl;
+                        }
+
+                        item.innerHTML = `
+                            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                            
+                            <div class="view-state" id="view-${doc.id}">
+                                <div class="content-wrap">
+                                    <div class="url-desc-primary">${data.aciklama || 'İsimsiz'}</div>
+                                    <div class="url-link-secondary">
+                                        <a href="${formattedUrl}" target="_blank">${data.url}</a>
+                                    </div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn-icon" title="Kopyala" onclick="copyText('${data.url}')"><i class="fas fa-copy"></i></button>
+                                    <button class="btn-icon edit" title="Düzenle" onclick="toggleEdit('${doc.id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete" title="Sil" onclick="deleteItem('${doc.id}')"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>
-                            <div class="actions">
-                                <button class="btn-icon" title="Kopyala" onclick="copyText('${data.url}')"><i class="fas fa-copy"></i></button>
-                                <button class="btn-icon edit" title="Düzenle" onclick="toggleEdit('${doc.id}')"><i class="fas fa-edit"></i></button>
-                                <button class="btn-icon delete" title="Sil" onclick="deleteItem('${doc.id}')"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
 
-                        <div class="edit-state" id="edit-${doc.id}">
-                            <div class="edit-inputs">
-                                <input type="text" id="inp-desc-${doc.id}" value="${data.aciklama || ''}" placeholder="Not">
-                                <input type="text" id="inp-url-${doc.id}" value="${data.url}" placeholder="URL">
+                            <div class="edit-state" id="edit-${doc.id}">
+                                <div class="edit-inputs">
+                                    <input type="text" id="inp-desc-${doc.id}" value="${data.aciklama || ''}" placeholder="Not">
+                                    <input type="text" id="inp-url-${doc.id}" value="${data.url || ''}" placeholder="URL">
+                                </div>
+                                <div class="actions" style="align-items: center;">
+                                    <button class="btn-icon" onclick="saveEdit('${doc.id}')" style="color:green"><i class="fas fa-check"></i></button>
+                                    <button class="btn-icon" onclick="toggleEdit('${doc.id}')" style="color:red"><i class="fas fa-times"></i></button>
+                                </div>
                             </div>
-                            <div class="actions" style="align-items: center;">
-                                <button class="btn-icon edit" onclick="saveEdit('${doc.id}')" style="color:green"><i class="fas fa-check"></i></button>
-                                <button class="btn-icon" onclick="toggleEdit('${doc.id}')" style="color:red"><i class="fas fa-times"></i></button>
-                            </div>
-                        </div>
-                    `;
-                    list.appendChild(item);
+                        `;
+                        list.appendChild(item);
+                    });
+                    initSortable();
+                }, (error) => {
+                    console.error("Firebase Hatası:", error);
                 });
-
-                initSortable();
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Yükleme hatası:", err); }
         }
 
         function toggleEdit(id) {
             const item = document.querySelector(`.url-item[data-id="${id}"]`);
-            item.classList.toggle('edit-mode');
+            if (item) item.classList.toggle('edit-mode');
         }
 
         async function saveEdit(id) {
@@ -341,8 +350,11 @@
                     url: newUrl,
                     aciklama: newDesc
                 });
-                loadURLs();
-            } catch (err) { alert("Hata oluştu."); }
+                // Snapshot listener olduğu için loadURLs çağırmaya gerek yok
+                toggleEdit(id); 
+            } catch (err) { 
+                console.error("Düzenleme hatası:", err);
+            }
         }
 
         document.getElementById('urlForm').addEventListener('submit', async (e) => {
@@ -351,7 +363,9 @@
             const d = document.getElementById('descInput').value;
             
             try {
-                const count = (await linksRef.get()).size;
+                const snapshot = await linksRef.get();
+                const count = snapshot.size;
+                
                 await linksRef.add({
                     url: u,
                     aciklama: d,
@@ -359,8 +373,7 @@
                     tarih: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 e.target.reset();
-                loadURLs();
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Ekleme hatası:", err); }
         });
 
         function copyText(t) {
@@ -370,28 +383,37 @@
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            const alert = document.getElementById('copyAlert');
-            alert.style.display = 'block';
-            setTimeout(() => alert.style.display = 'none', 1500);
+            
+            const alertBox = document.getElementById('copyAlert');
+            alertBox.style.display = 'block';
+            setTimeout(() => alertBox.style.display = 'none', 1500);
         }
 
+        // SİLME İŞLEMİ GÜNCELLENDİ
         async function deleteItem(id) {
-            if(confirm("Silmek istediğinize emin misiniz?")) {
+            // Confirm bazen iFrame içinde takılabiliyor, bu yüzden doğrudan silme deniyoruz
+            // Eğer silme çalışmazsa konsoldaki hatayı görmek için try-catch ekledim.
+            try {
                 await linksRef.doc(id).delete();
-                loadURLs();
+                console.log("Silindi:", id);
+            } catch (err) { 
+                console.error("Silme hatası:", err);
+                alert("Silme başarısız: " + err.message);
             }
         }
 
         function searchList() {
             const val = document.getElementById('searchInput').value.toLowerCase();
             document.querySelectorAll('.url-item').forEach(item => {
-                item.style.display = item.innerText.toLowerCase().includes(val) ? 'flex' : 'none';
+                const text = item.innerText.toLowerCase();
+                item.style.display = text.includes(val) ? 'flex' : 'none';
             });
         }
 
         function initSortable() {
+            const listEl = document.getElementById('urlList');
             if (sortable) sortable.destroy();
-            sortable = new Sortable(document.getElementById('urlList'), {
+            sortable = new Sortable(listEl, {
                 handle: '.drag-handle',
                 animation: 200,
                 onEnd: async function() {
