@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Kaydedici - Profesyonel</title>
+    <title>Dijital Merkezim</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <style>
@@ -152,29 +152,34 @@
             overflow: hidden;
         }
 
-        .url-title {
+        .url-desc-primary {
             font-weight: 600;
-            font-size: 15px;
+            font-size: 16px;
+            color: var(--text);
+            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .url-title a {
+        .url-link-secondary {
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .url-link-secondary a {
             color: var(--primary);
             text-decoration: none;
-            transition: color 0.2s;
+            opacity: 0.8;
+            transition: all 0.2s;
         }
 
-        .url-title a:hover {
-            color: var(--primary-hover);
+        .url-link-secondary a:hover {
+            opacity: 1;
             text-decoration: underline;
-        }
-
-        .url-desc {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 2px;
         }
 
         .actions {
@@ -200,11 +205,17 @@
         .btn-icon.edit:hover { color: var(--primary); background: var(--primary-light); }
         .btn-icon.delete:hover { color: #d93025; background: #fce8e6; }
 
-        /* Düzenleme Modu Stilleri */
         .edit-mode .view-state { display: none; }
         .edit-mode .edit-state { display: flex; width: 100%; gap: 10px; }
         .view-state { display: flex; width: 100%; align-items: center; justify-content: space-between; }
         .edit-state { display: none; }
+        
+        .edit-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex-grow: 1;
+        }
 
         .alert {
             position: fixed;
@@ -228,20 +239,20 @@
 
     <div class="container">
         <div class="header">
-            <h2><i class="fas fa-bookmark"></i> URL Kaydedici</h2>
+            <h2><i class="fas fa-home"></i> Dijital Merkezim</h2>
         </div>
 
         <div class="form-panel">
             <form id="urlForm" class="form-row">
-                <input type="text" id="urlInput" placeholder="URL veya Başlık" required>
-                <input type="text" id="descInput" placeholder="Not ekle...">
+                <input type="text" id="descInput" placeholder="Kısa Not / Başlık (Belirgin)" required>
+                <input type="text" id="urlInput" placeholder="URL Adresi" required>
                 <button type="submit" class="btn-add">Ekle</button>
             </form>
         </div>
 
         <div class="search-row">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Listede ara..." onkeyup="searchList()">
+            <input type="text" id="searchInput" placeholder="Merkezde ara..." onkeyup="searchList()">
         </div>
 
         <div class="list-container">
@@ -284,26 +295,26 @@
                     item.innerHTML = `
                         <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
                         
-                        <!-- Görünüm Modu -->
                         <div class="view-state" id="view-${doc.id}">
                             <div class="content-wrap">
-                                <div class="url-title">
+                                <div class="url-desc-primary">${data.aciklama || 'İsimsiz'}</div>
+                                <div class="url-link-secondary">
                                     ${data.url.startsWith('http') ? `<a href="${data.url}" target="_blank">${data.url}</a>` : `<span>${data.url}</span>`}
                                 </div>
-                                ${data.aciklama ? `<div class="url-desc">${data.aciklama}</div>` : ''}
                             </div>
                             <div class="actions">
-                                <button class="btn-icon" onclick="copyText('${data.url}')"><i class="fas fa-copy"></i></button>
-                                <button class="btn-icon edit" onclick="toggleEdit('${doc.id}')"><i class="fas fa-edit"></i></button>
-                                <button class="btn-icon delete" onclick="deleteItem('${doc.id}')"><i class="fas fa-trash"></i></button>
+                                <button class="btn-icon" title="Kopyala" onclick="copyText('${data.url}')"><i class="fas fa-copy"></i></button>
+                                <button class="btn-icon edit" title="Düzenle" onclick="toggleEdit('${doc.id}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon delete" title="Sil" onclick="deleteItem('${doc.id}')"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
 
-                        <!-- Düzenleme Modu -->
                         <div class="edit-state" id="edit-${doc.id}">
-                            <input type="text" id="inp-url-${doc.id}" value="${data.url}">
-                            <input type="text" id="inp-desc-${doc.id}" value="${data.aciklama || ''}">
-                            <div class="actions">
+                            <div class="edit-inputs">
+                                <input type="text" id="inp-desc-${doc.id}" value="${data.aciklama || ''}" placeholder="Not">
+                                <input type="text" id="inp-url-${doc.id}" value="${data.url}" placeholder="URL">
+                            </div>
+                            <div class="actions" style="align-items: center;">
                                 <button class="btn-icon edit" onclick="saveEdit('${doc.id}')" style="color:green"><i class="fas fa-check"></i></button>
                                 <button class="btn-icon" onclick="toggleEdit('${doc.id}')" style="color:red"><i class="fas fa-times"></i></button>
                             </div>
@@ -365,7 +376,7 @@
         }
 
         async function deleteItem(id) {
-            if(confirm("Silinsin mi?")) {
+            if(confirm("Silmek istediğinize emin misiniz?")) {
                 await linksRef.doc(id).delete();
                 loadURLs();
             }
