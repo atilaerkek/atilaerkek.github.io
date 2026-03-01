@@ -35,37 +35,6 @@
             margin-bottom: 20px;
         }
         
-        /* Küçük yükleme butonu */
-        .upload-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f0f4fa;
-            padding: 10px 20px;
-            border-radius: 50px;
-            margin-bottom: 25px;
-        }
-        .upload-btn {
-            background: #1e4660;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: 0.2s;
-        }
-        .upload-btn:hover {
-            background: #0b3b5c;
-        }
-        .file-name {
-            color: #1e4660;
-            font-size: 0.9rem;
-        }
-        
         .compact-summary {
             display: flex;
             gap: 15px;
@@ -304,43 +273,67 @@
             color: #666;
             font-size: 1.2rem;
         }
+        .status-bar {
+            background: #e6f0fa;
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .refresh-btn {
+            background: #1e4660;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .refresh-btn:hover {
+            background: #0b3b5c;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .error-box {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="container">
     <h1>📊 Anamur Bozyazı Envanter</h1>
     
-    <!-- Küçük yükleme çubuğu -->
-    <div class="upload-bar">
-        <span class="file-name" id="fileName">📁 Henüz dosya yüklenmedi</span>
-        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-            📤 Excel Yükle
-        </button>
-        <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;" onchange="handleFile(this.files[0])">
+    <div class="status-bar">
+        <span id="status">🔄 Veriler yükleniyor...</span>
+        <button class="refresh-btn" onclick="loadData()">🔄 Yenile</button>
     </div>
 
-    <!-- Özetler -->
+    <div id="errorBox" class="error-box" style="display: none;"></div>
+
     <div class="compact-summary">
         <div class="summary-box anamur">
             <div class="summary-header">
                 <h3>ANAMUR</h3>
                 <span id="anamurCount">0 Kurum</span>
             </div>
-            <div class="summary-stats">
+            <div class="summary-stats" id="anamurStats">
                 <span class="stat-chip"><strong id="anamurET">0</strong> ET</span>
                 <span class="stat-chip"><strong id="anamurF1">0</strong> F1</span>
                 <span class="stat-chip"><strong id="anamurF2">0</strong> F2</span>
                 <span class="stat-chip"><strong id="anamurF3A">0</strong> F3A</span>
                 <span class="stat-chip"><strong id="anamurF3Ai">0</strong> F3Ai</span>
-                <span class="stat-chip"><strong id="anamurTablet">0</strong> Tab</span>
-                <span class="stat-chip"><strong id="anamurYazici">0</strong> Yaz</span>
-                <span class="stat-chip"><strong id="anamurKamera">0</strong> Kam</span>
-                <span class="stat-chip"><strong id="anamurBtLab">0</strong> Lab</span>
-                <span class="stat-chip"><strong id="anamurBtBilg">0</strong> Bilg</span>
-                <span class="stat-chip"><strong id="anamurZkut">0</strong> Z-K</span>
             </div>
-            <div class="internet-chips">
+            <div class="internet-chips" id="anamurInternet">
                 <span class="inet-chip adsl">ADSL: <span id="anamurAdsl">0</span></span>
                 <span class="inet-chip fatih">VPN: <span id="anamurFatih">0</span></span>
                 <span class="inet-chip uydu">Uydu: <span id="anamurUydu">0</span></span>
@@ -353,20 +346,14 @@
                 <h3>BOZYAZI</h3>
                 <span id="bozyaziCount">0 Kurum</span>
             </div>
-            <div class="summary-stats">
+            <div class="summary-stats" id="bozyaziStats">
                 <span class="stat-chip"><strong id="bozyaziET">0</strong> ET</span>
                 <span class="stat-chip"><strong id="bozyaziF1">0</strong> F1</span>
                 <span class="stat-chip"><strong id="bozyaziF2">0</strong> F2</span>
                 <span class="stat-chip"><strong id="bozyaziF3A">0</strong> F3A</span>
                 <span class="stat-chip"><strong id="bozyaziF3Ai">0</strong> F3Ai</span>
-                <span class="stat-chip"><strong id="bozyaziTablet">0</strong> Tab</span>
-                <span class="stat-chip"><strong id="bozyaziYazici">0</strong> Yaz</span>
-                <span class="stat-chip"><strong id="bozyaziKamera">0</strong> Kam</span>
-                <span class="stat-chip"><strong id="bozyaziBtLab">0</strong> Lab</span>
-                <span class="stat-chip"><strong id="bozyaziBtBilg">0</strong> Bilg</span>
-                <span class="stat-chip"><strong id="bozyaziZkut">0</strong> Z-K</span>
             </div>
-            <div class="internet-chips">
+            <div class="internet-chips" id="bozyaziInternet">
                 <span class="inet-chip adsl">ADSL: <span id="bozyaziAdsl">0</span></span>
                 <span class="inet-chip fatih">VPN: <span id="bozyaziFatih">0</span></span>
                 <span class="inet-chip uydu">Uydu: <span id="bozyaziUydu">0</span></span>
@@ -375,11 +362,10 @@
         </div>
     </div>
 
-    <!-- Filtreler -->
     <div class="filters">
         <div class="filter-group">
             <label>İlçe</label>
-            <select id="ilceFilter">
+            <select id="ilceFilter" onchange="filterData()">
                 <option value="TÜMÜ">Tüm İlçeler</option>
                 <option value="ANAMUR">Anamur</option>
                 <option value="BOZYAZI">Bozyazı</option>
@@ -387,13 +373,13 @@
         </div>
         <div class="filter-group">
             <label>Kurum Türü</label>
-            <select id="kurumTuruFilter">
+            <select id="kurumTuruFilter" onchange="filterData()">
                 <option value="TÜMÜ">Tüm Kurumlar</option>
             </select>
         </div>
         <div class="filter-group">
             <label>İnternet</label>
-            <select id="internetFilter">
+            <select id="internetFilter" onchange="filterData()">
                 <option value="TÜMÜ">Tümü</option>
                 <option value="MEB_ADSL">MEB_ADSL</option>
                 <option value="FATİH_VPN">FATİH_VPN</option>
@@ -403,148 +389,169 @@
         </div>
         <div class="filter-group">
             <label>Arama</label>
-            <input type="text" id="aramaInput" placeholder="Okul adı...">
+            <input type="text" id="aramaInput" onkeyup="filterData()" placeholder="Okul adı...">
         </div>
     </div>
 
-    <!-- Tablo -->
     <div class="table-wrapper">
-        <table id="mainTable">
+        <table>
             <thead>
-            <tr>
-                <th>İlçe</th>
-                <th>Kurum Adı</th>
-                <th>Kurum Türü</th>
-                <th>F1</th>
-                <th>F2</th>
-                <th>F3A</th>
-                <th>F3Ai</th>
-                <th>Toplam</th>
-                <th>Lab</th>
-                <th>Bilg</th>
-                <th>İnternet</th>
-            </tr>
+                <tr>
+                    <th>İlçe</th>
+                    <th>Kurum Adı</th>
+                    <th>Kurum Türü</th>
+                    <th>F1</th>
+                    <th>F2</th>
+                    <th>F3A</th>
+                    <th>F3Ai</th>
+                    <th>Toplam</th>
+                    <th>Lab</th>
+                    <th>Bilg</th>
+                    <th>İnternet</th>
+                </tr>
             </thead>
             <tbody id="tableBody">
-            <tr><td colspan="11" class="info-message">📂 Excel dosyanızı yükleyin</td></tr>
+                <tr><td colspan="11" class="loading">Veriler yükleniyor...</td></tr>
             </tbody>
         </table>
-    </div>
-    
-    <div class="footer-note">
-        ⚡ Sadece "Okul_Özet" ve "İlçe_Özet" sayfalarını okur
     </div>
 </div>
 
 <script>
-    let rawData = [];
-    let ilceOzetData = { ANAMUR: {}, BOZYAZI: {} };
-    let uniqueKurumTurleri = [];
+    // =============================================
+    // GOOGLE SHEETS ID - SADECE BUNU GÜNCELLEYİN
+    // =============================================
+    const SPREADSHEET_ID = '2PACX-1vQJwf-VYKADvh1hPpoLQilHrTthG-Ig5H-gyTeP75svYqiMt8HTbUAJKO1eLH1BgzLKWZUKYaujqkZn';
+    const OKUL_OZET_GID = '1883249581';
+    const ILCE_OZET_GID = '1351961907';
 
-    function handleFile(file) {
-        if (!file) return;
-        
-        document.getElementById('fileName').innerHTML = `⏳ ${file.name} yükleniyor...`;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                // Okul_Özet sayfasını bul
-                const okulSheet = workbook.Sheets['Okul_Özet'] || workbook.Sheets[workbook.SheetNames[0]];
-                // İlçe_Özet sayfasını bul
-                const ilceSheet = workbook.Sheets['İlçe_Özet'] || workbook.Sheets[workbook.SheetNames[1]];
-                
-                if (!okulSheet || !ilceSheet) {
-                    alert('Excel dosyasında "Okul_Özet" ve "İlçe_Özet" sayfaları bulunamadı!');
-                    return;
-                }
-                
-                // Sayfaları JSON'a çevir
-                const okulData = XLSX.utils.sheet_to_json(okulSheet, { header: 1 });
-                const ilceData = XLSX.utils.sheet_to_json(ilceSheet, { header: 1 });
-                
-                // Verileri işle
-                processOkulData(okulData);
-                processIlceData(ilceData);
-                
-                // Kaydet
-                localStorage.setItem('envanterData', JSON.stringify({
-                    rawData: rawData,
-                    ilceOzet: ilceOzetData,
-                    fileName: file.name,
-                    timestamp: new Date().toISOString()
-                }));
-                
-                document.getElementById('fileName').innerHTML = `✅ ${file.name} yüklendi`;
-                
-                // Güncelle
-                updateKurumTuruFilter();
-                updateSummaries();
-                renderTable();
-                
-            } catch (error) {
-                console.error('Hata:', error);
-                alert('Dosya okunurken hata oluştu!');
-                document.getElementById('fileName').innerHTML = '❌ Yükleme başarısız';
-            }
-        };
-        reader.readAsArrayBuffer(file);
+    // =============================================
+    // DİĞER HER ŞEY OTOMATİK ÇALIŞIR
+    // =============================================
+    let rawData = [];
+    let filteredData = [];
+    let ilceOzet = { ANAMUR: {}, BOZYAZI: {} };
+
+    window.addEventListener('load', function() {
+        loadData();
+        setInterval(loadData, 5 * 60 * 1000); // 5 dakikada bir otomatik yenile
+    });
+
+    async function loadData() {
+        try {
+            document.getElementById('status').innerHTML = '🔄 Veriler yükleniyor...';
+            hideError();
+
+            // CSV'den veri çek
+            await loadOkulData();
+            await loadIlceData();
+
+            document.getElementById('status').innerHTML = `✅ Son güncelleme: ${new Date().toLocaleString('tr-TR')} (${rawData.length} okul)`;
+            
+            updateKurumTuruFilter();
+            updateSummaries();
+            filterData();
+
+        } catch (error) {
+            console.error('Hata:', error);
+            showError('Veriler yüklenirken hata oluştu. Sayfayı yenileyin.');
+            document.getElementById('status').innerHTML = '❌ Veri alınamadı';
+            
+            // Yedek verileri göster
+            loadBackupData();
+        }
     }
 
-    function processOkulData(rows) {
+    async function loadOkulData() {
+        const url = `https://docs.google.com/spreadsheets/d/e/${SPREADSHEET_ID}/pub?gid=${OKUL_OZET_GID}&single=true&output=csv`;
+        
+        const response = await fetch(url);
+        const csvText = await response.text();
+        
+        // CSV'yi parse et
+        const lines = csvText.split('\n');
         rawData = [];
         
-        // Başlık satırını bul (genelde ilk satır)
-        for (let i = 1; i < rows.length; i++) {
-            if (!rows[i] || rows[i].length < 5) continue;
+        // Başlık satırını al
+        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+        
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
             
-            // Sütunları manuel olarak eşleştir
-            const row = {
-                ilce: rows[i][0] || '',      // İlçe
-                kurumKodu: rows[i][1] || '',  // Kurum Kodu
-                kurumAdi: rows[i][2] || '',   // Kurum Adı
-                kurumTuru: rows[i][3] || 'Diğer', // Kurum Türü
-                faz1: parseInt(rows[i][4]) || 0,   // FAZ1
-                faz2: parseInt(rows[i][5]) || 0,   // FAZ2
-                faz3Arcelik: parseInt(rows[i][6]) || 0, // FAZ3A
-                faz3Aidata: parseInt(rows[i][7]) || 0,   // FAZ3Ai
-                toplamET: parseInt(rows[i][8]) || 0,     // TOPLAM ET
-                btLabSayisi: parseInt(rows[i][9]) || 0,  // BT Lab Sayısı
-                btLabBilgisayar: parseInt(rows[i][10]) || 0, // BT Lab Bilgisayar
-                internet: rows[i][11] || '0'              // İnternet
-            };
+            const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
+            if (values.length < 5) continue;
             
-            if (row.ilce === 'ANAMUR' || row.ilce === 'BOZYAZI') {
-                rawData.push(row);
+            const row = {};
+            headers.forEach((header, index) => {
+                row[header] = values[index] || '';
+            });
+            
+            const ilce = row['İlçe'] || row['ILCE'] || '';
+            if (ilce === 'ANAMUR' || ilce === 'BOZYAZI') {
+                rawData.push({
+                    ilce: ilce,
+                    kurumAdi: row['Kurum Adı'] || row['KURUM_ADI'] || '',
+                    kurumTuru: row['Kurum Türü'] || row['KURUM_TURU'] || 'Diğer',
+                    faz1: parseInt(row['FAZ1_ET_VESTEL_SIYAH'] || row['Faz1'] || 0) || 0,
+                    faz2: parseInt(row['FAZ2_ET_VESTEL_GRI'] || row['Faz2'] || 0) || 0,
+                    faz3Arcelik: parseInt(row['FAZ3PAKET1_ET_ARCELIK'] || row['Faz3A'] || 0) || 0,
+                    faz3Aidata: parseInt(row['FAZ3_ET_AIDATA_SIYAH'] || row['Faz3Ai'] || 0) || 0,
+                    toplamET: parseInt(row['TOPLAM ET'] || row['Toplam'] || 0) || 0,
+                    btLabSayisi: parseInt(row['BTLAB_SAYISI'] || row['BT Lab'] || 0) || 0,
+                    btLabBilgisayar: parseInt(row['BT_LAB_BILGISAYAR_SAYISI'] || row['BT Bilg'] || 0) || 0,
+                    internet: row['INTERNET_BAGLANTI_TURU'] || row['İnternet'] || '0'
+                });
             }
         }
-        
-        console.log('İşlenen okul sayısı:', rawData.length);
     }
 
-    function processIlceData(rows) {
-        ilceOzetData = { ANAMUR: {}, BOZYAZI: {} };
+    async function loadIlceData() {
+        const url = `https://docs.google.com/spreadsheets/d/e/${SPREADSHEET_ID}/pub?gid=${ILCE_OZET_GID}&single=true&output=csv`;
         
-        for (let i = 1; i < rows.length; i++) {
-            if (!rows[i] || rows[i].length < 10) continue;
+        const response = await fetch(url);
+        const csvText = await response.text();
+        
+        const lines = csvText.split('\n');
+        ilceOzet = { ANAMUR: {}, BOZYAZI: {} };
+        
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
             
-            const ilce = rows[i][0];
+            const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
+            if (values.length < 10) continue;
+            
+            const ilce = values[0];
             if (ilce === 'ANAMUR' || ilce === 'BOZYAZI') {
-                ilceOzetData[ilce] = {
-                    tablet: parseInt(rows[i][6]) || 0,   // Tablet
-                    yazici: parseInt(rows[i][7]) || 0,   // Yazıcı
-                    kamera: parseInt(rows[i][8]) || 0,   // Kamera
-                    zKutuphane: parseInt(rows[i][9]) || 0, // Z-Kütüphane
-                    adsl: parseInt(rows[i][10]) || 0,    // MEB_ADSL
-                    fatih: parseInt(rows[i][11]) || 0,   // FATİH_VPN
-                    uydu: parseInt(rows[i][12]) || 0,    // VSAT_UYDU
-                    yok: parseInt(rows[i][13]) || 0      // Bağlantı Yok
+                ilceOzet[ilce] = {
+                    tablet: parseInt(values[6]) || 0,
+                    yazici: parseInt(values[7]) || 0,
+                    kamera: parseInt(values[8]) || 0,
+                    zKutuphane: parseInt(values[9]) || 0,
+                    adsl: parseInt(values[10]) || 0,
+                    fatih: parseInt(values[11]) || 0,
+                    uydu: parseInt(values[12]) || 0,
+                    yok: parseInt(values[13]) || 0
                 };
             }
         }
+    }
+
+    function loadBackupData() {
+        // Örnek veriler - her ihtimale karşı
+        rawData = [
+            {ilce: "ANAMUR", kurumAdi: "Anamur Anadolu Lisesi", kurumTuru: "Anadolu Lisesi", faz1:0, faz2:0, faz3Arcelik:24, faz3Aidata:0, toplamET:24, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
+            {ilce: "ANAMUR", kurumAdi: "Akdeniz İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:23, faz3Arcelik:0, faz3Aidata:0, toplamET:23, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
+            {ilce: "BOZYAZI", kurumAdi: "Bozyazı Anadolu Lisesi", kurumTuru: "Anadolu Lisesi", faz1:0, faz2:32, faz3Arcelik:0, faz3Aidata:0, toplamET:32, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"}
+        ];
+        
+        ilceOzet = {
+            ANAMUR: { tablet: 100, yazici: 38, kamera: 4, zKutuphane: 4, adsl: 26, fatih: 12, uydu: 2, yok: 20 },
+            BOZYAZI: { tablet: 50, yazici: 21, kamera: 2, zKutuphane: 1, adsl: 15, fatih: 10, uydu: 0, yok: 6 }
+        };
+        
+        updateKurumTuruFilter();
+        updateSummaries();
+        filterData();
     }
 
     function updateKurumTuruFilter() {
@@ -552,12 +559,11 @@
         rawData.forEach(r => {
             if (r.kurumTuru) turSet.add(r.kurumTuru);
         });
-        uniqueKurumTurleri = Array.from(turSet).sort();
         
-        const turFilter = document.getElementById('kurumTuruFilter');
-        turFilter.innerHTML = '<option value="TÜMÜ">Tüm Kurumlar</option>';
-        uniqueKurumTurleri.forEach(tur => {
-            turFilter.innerHTML += `<option value="${tur}">${tur}</option>`;
+        const select = document.getElementById('kurumTuruFilter');
+        select.innerHTML = '<option value="TÜMÜ">Tüm Kurumlar</option>';
+        Array.from(turSet).sort().forEach(tur => {
+            select.innerHTML += `<option value="${tur}">${tur}</option>`;
         });
     }
 
@@ -571,8 +577,6 @@
         document.getElementById('anamurF2').innerText = anamurData.reduce((acc, r) => acc + r.faz2, 0);
         document.getElementById('anamurF3A').innerText = anamurData.reduce((acc, r) => acc + r.faz3Arcelik, 0);
         document.getElementById('anamurF3Ai').innerText = anamurData.reduce((acc, r) => acc + r.faz3Aidata, 0);
-        document.getElementById('anamurBtLab').innerText = anamurData.reduce((acc, r) => acc + r.btLabSayisi, 0);
-        document.getElementById('anamurBtBilg').innerText = anamurData.reduce((acc, r) => acc + r.btLabBilgisayar, 0);
 
         document.getElementById('bozyaziCount').innerText = bozyaziData.length + ' Kurum';
         document.getElementById('bozyaziET').innerText = bozyaziData.reduce((acc, r) => acc + r.toplamET, 0);
@@ -580,29 +584,19 @@
         document.getElementById('bozyaziF2').innerText = bozyaziData.reduce((acc, r) => acc + r.faz2, 0);
         document.getElementById('bozyaziF3A').innerText = bozyaziData.reduce((acc, r) => acc + r.faz3Arcelik, 0);
         document.getElementById('bozyaziF3Ai').innerText = bozyaziData.reduce((acc, r) => acc + r.faz3Aidata, 0);
-        document.getElementById('bozyaziBtLab').innerText = bozyaziData.reduce((acc, r) => acc + r.btLabSayisi, 0);
-        document.getElementById('bozyaziBtBilg').innerText = bozyaziData.reduce((acc, r) => acc + r.btLabBilgisayar, 0);
 
-        if (ilceOzetData.ANAMUR) {
-            document.getElementById('anamurTablet').innerText = ilceOzetData.ANAMUR.tablet || 0;
-            document.getElementById('anamurYazici').innerText = ilceOzetData.ANAMUR.yazici || 0;
-            document.getElementById('anamurKamera').innerText = ilceOzetData.ANAMUR.kamera || 0;
-            document.getElementById('anamurZkut').innerText = ilceOzetData.ANAMUR.zKutuphane || 0;
-            document.getElementById('anamurAdsl').innerText = ilceOzetData.ANAMUR.adsl || 0;
-            document.getElementById('anamurFatih').innerText = ilceOzetData.ANAMUR.fatih || 0;
-            document.getElementById('anamurUydu').innerText = ilceOzetData.ANAMUR.uydu || 0;
-            document.getElementById('anamurYok').innerText = ilceOzetData.ANAMUR.yok || 0;
+        if (ilceOzet.ANAMUR) {
+            document.getElementById('anamurAdsl').innerText = ilceOzet.ANAMUR.adsl || 0;
+            document.getElementById('anamurFatih').innerText = ilceOzet.ANAMUR.fatih || 0;
+            document.getElementById('anamurUydu').innerText = ilceOzet.ANAMUR.uydu || 0;
+            document.getElementById('anamurYok').innerText = ilceOzet.ANAMUR.yok || 0;
         }
 
-        if (ilceOzetData.BOZYAZI) {
-            document.getElementById('bozyaziTablet').innerText = ilceOzetData.BOZYAZI.tablet || 0;
-            document.getElementById('bozyaziYazici').innerText = ilceOzetData.BOZYAZI.yazici || 0;
-            document.getElementById('bozyaziKamera').innerText = ilceOzetData.BOZYAZI.kamera || 0;
-            document.getElementById('bozyaziZkut').innerText = ilceOzetData.BOZYAZI.zKutuphane || 0;
-            document.getElementById('bozyaziAdsl').innerText = ilceOzetData.BOZYAZI.adsl || 0;
-            document.getElementById('bozyaziFatih').innerText = ilceOzetData.BOZYAZI.fatih || 0;
-            document.getElementById('bozyaziUydu').innerText = ilceOzetData.BOZYAZI.uydu || 0;
-            document.getElementById('bozyaziYok').innerText = ilceOzetData.BOZYAZI.yok || 0;
+        if (ilceOzet.BOZYAZI) {
+            document.getElementById('bozyaziAdsl').innerText = ilceOzet.BOZYAZI.adsl || 0;
+            document.getElementById('bozyaziFatih').innerText = ilceOzet.BOZYAZI.fatih || 0;
+            document.getElementById('bozyaziUydu').innerText = ilceOzet.BOZYAZI.uydu || 0;
+            document.getElementById('bozyaziYok').innerText = ilceOzet.BOZYAZI.yok || 0;
         }
     }
 
@@ -612,7 +606,7 @@
         const internet = document.getElementById('internetFilter').value;
         const arama = document.getElementById('aramaInput').value.toLowerCase();
 
-        return rawData.filter(r => {
+        filteredData = rawData.filter(r => {
             if (ilce !== 'TÜMÜ' && r.ilce !== ilce) return false;
             if (tur !== 'TÜMÜ' && r.kurumTuru !== tur) return false;
             if (internet !== 'TÜMÜ') {
@@ -622,25 +616,26 @@
             if (arama && !r.kurumAdi.toLowerCase().includes(arama)) return false;
             return true;
         });
+
+        renderTable();
     }
 
     function renderTable() {
-        const filtered = filterData();
-        const ilceler = [...new Set(filtered.map(r => r.ilce))].sort();
+        const ilceler = [...new Set(filteredData.map(r => r.ilce))].sort();
 
         let html = '';
 
-        if (filtered.length === 0) {
+        if (filteredData.length === 0) {
             html = '<tr><td colspan="11" class="info-message">📌 Okul bulunamadı</td></tr>';
         } else {
             ilceler.forEach(ilce => {
-                const okullar = filtered.filter(r => r.ilce === ilce);
+                const okullar = filteredData.filter(r => r.ilce === ilce);
                 const toplamET = okullar.reduce((acc, r) => acc + r.toplamET, 0);
                 const toplamLab = okullar.reduce((acc, r) => acc + r.btLabSayisi, 0);
                 const toplamBilg = okullar.reduce((acc, r) => acc + r.btLabBilgisayar, 0);
 
-                html += `<tr class="district-row" data-ilce="${ilce}">`;
-                html += `<td><span class="toggle-icon">▶</span> ${ilce}</td>`;
+                html += `<tr class="district-row" onclick="toggleDetail('${ilce}')">`;
+                html += `<td><span class="toggle-icon" id="icon-${ilce}">▶</span> ${ilce}</td>`;
                 html += `<td colspan="2"><strong>${ilce} Toplam (${okullar.length})</strong></td>`;
                 html += `<td>${okullar.reduce((acc, r) => acc + r.faz1, 0)}</td>`;
                 html += `<td>${okullar.reduce((acc, r) => acc + r.faz2, 0)}</td>`;
@@ -652,7 +647,7 @@
                 html += `<td>-</td>`;
                 html += `</tr>`;
 
-                html += `<tr class="detail-row" data-ilce-detail="${ilce}">`;
+                html += `<tr class="detail-row" id="detail-${ilce}">`;
                 html += `<td colspan="11"><div class="detail-inner">`;
                 html += `<table class="detail-table">`;
                 html += `<thead><tr><th>Kurum</th><th>Tür</th><th>F1</th><th>F2</th><th>F3A</th><th>F3Ai</th><th>Top</th><th>Lab</th><th>Bilg</th><th>İnternet</th></tr></thead><tbody>`;
@@ -682,46 +677,30 @@
         }
 
         document.getElementById('tableBody').innerHTML = html;
-
-        document.querySelectorAll('.district-row').forEach(row => {
-            row.addEventListener('click', function() {
-                const ilce = this.dataset.ilce;
-                const detail = document.querySelector(`tr.detail-row[data-ilce-detail="${ilce}"]`);
-                if (detail) {
-                    const isHidden = detail.style.display !== 'table-row';
-                    detail.style.display = isHidden ? 'table-row' : 'none';
-                    this.querySelector('.toggle-icon').innerHTML = isHidden ? '▼' : '▶';
-                }
-            });
-        });
     }
 
-    // Kayıtlı verileri yükle
-    window.addEventListener('load', function() {
-        const saved = localStorage.getItem('envanterData');
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                rawData = data.rawData || [];
-                ilceOzetData = data.ilceOzet || { ANAMUR: {}, BOZYAZI: {} };
-                document.getElementById('fileName').innerHTML = `📁 ${data.fileName || 'Son yüklenen'}`;
-                
-                if (rawData.length > 0) {
-                    updateKurumTuruFilter();
-                    updateSummaries();
-                    renderTable();
-                }
-            } catch (e) {
-                console.log('Kayıtlı veri yok');
-            }
+    function toggleDetail(ilce) {
+        const detail = document.getElementById('detail-' + ilce);
+        const icon = document.getElementById('icon-' + ilce);
+        
+        if (detail.style.display === 'table-row') {
+            detail.style.display = 'none';
+            icon.innerHTML = '▶';
+        } else {
+            detail.style.display = 'table-row';
+            icon.innerHTML = '▼';
         }
-    });
+    }
 
-    // Filtre değişimlerinde tabloyu yeniden çiz
-    document.getElementById('ilceFilter').addEventListener('change', renderTable);
-    document.getElementById('kurumTuruFilter').addEventListener('change', renderTable);
-    document.getElementById('internetFilter').addEventListener('change', renderTable);
-    document.getElementById('aramaInput').addEventListener('input', renderTable);
+    function showError(message) {
+        const errorBox = document.getElementById('errorBox');
+        errorBox.innerHTML = message;
+        errorBox.style.display = 'block';
+    }
+
+    function hideError() {
+        document.getElementById('errorBox').style.display = 'none';
+    }
 </script>
 </body>
 </html>
