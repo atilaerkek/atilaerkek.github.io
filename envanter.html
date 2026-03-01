@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anamur Bozyazı Envanter</title>
     <style>
-        /* Tasarım aynen korundu - daha önceki gibi */
+        /* Tasarım aynen korundu */
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -45,9 +45,6 @@
             border-radius: 30px;
             font-size: 0.8rem;
             font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
         }
         .compact-summary {
             display: flex;
@@ -287,19 +284,13 @@
             color: #666;
             font-size: 1.2rem;
         }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            font-size: 1.2rem;
-        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>
         📊 Anamur Bozyazı Envanter
-        <span class="update-date">📅 Son Güncelleme: 1 Mart 2025 (Tüm veriler kontrol edildi)</span>
+        <span class="update-date">📅 1 Mart 2026</span>
     </h1>
 
     <!-- Özetler -->
@@ -323,10 +314,10 @@
                 <span class="stat-chip"><strong>4</strong> Z-K</span>
             </div>
             <div class="internet-chips">
-                <span class="inet-chip adsl">ADSL: 26</span>
+                <span class="inet-chip adsl">ADSL: 27</span>
                 <span class="inet-chip fatih">VPN: 12</span>
                 <span class="inet-chip uydu">Uydu: 2</span>
-                <span class="inet-chip yok">Yok: 20</span>
+                <span class="inet-chip yok">Yok: 18</span>
             </div>
         </div>
 
@@ -352,7 +343,7 @@
                 <span class="inet-chip adsl">ADSL: 15</span>
                 <span class="inet-chip fatih">VPN: 10</span>
                 <span class="inet-chip uydu">Uydu: 0</span>
-                <span class="inet-chip yok">Yok: 6</span>
+                <span class="inet-chip yok">Yok: 5</span>
             </div>
         </div>
     </div>
@@ -414,13 +405,13 @@
     </div>
     
     <div class="footer-note">
-        📊 Güncelleme: 1 Mart 2025 • Tüm veriler Excel'den alındı ve kontrol edildi
+        Okul_Özet ve İlçe_Özet sayfalarından alınmıştır
     </div>
 </div>
 
 <script>
     // =============================================
-    // TÜM VERİLER - Excel'den birebir alındı
+    // TÜM VERİLER - Okul_Özet ve İlçe_Özet'ten alındı
     // =============================================
     const VERILER = [
         {ilce: "ANAMUR", kurumAdi: "Anamur Öğretmenevi ve Akşam Sanat Okulu", kurumTuru: "Akşam Sanat Okulu (DHGM)", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
@@ -551,55 +542,55 @@
 
         let html = '';
 
-        ilceler.forEach(ilce => {
-            const okullar = filteredData.filter(r => r.ilce === ilce);
-            const toplamET = okullar.reduce((acc, r) => acc + r.toplamET, 0);
-            const toplamLab = okullar.reduce((acc, r) => acc + r.btLabSayisi, 0);
-            const toplamBilg = okullar.reduce((acc, r) => acc + r.btLabBilgisayar, 0);
-
-            html += `<tr class="district-row" onclick="toggleDetail('${ilce}')">`;
-            html += `<td><span class="toggle-icon" id="icon-${ilce}">▶</span> ${ilce}</td>`;
-            html += `<td colspan="2"><strong>${ilce} Toplam (${okullar.length})</strong></td>`;
-            html += `<td>${okullar.reduce((acc, r) => acc + r.faz1, 0)}</td>`;
-            html += `<td>${okullar.reduce((acc, r) => acc + r.faz2, 0)}</td>`;
-            html += `<td>${okullar.reduce((acc, r) => acc + r.faz3Arcelik, 0)}</td>`;
-            html += `<td>${okullar.reduce((acc, r) => acc + r.faz3Aidata, 0)}</td>`;
-            html += `<td><strong>${toplamET}</strong></td>`;
-            html += `<td>${toplamLab}</td>`;
-            html += `<td>${toplamBilg}</td>`;
-            html += `<td>-</td>`;
-            html += `</tr>`;
-
-            html += `<tr class="detail-row" id="detail-${ilce}">`;
-            html += `<td colspan="11"><div class="detail-inner">`;
-            html += `<table class="detail-table">`;
-            html += `<thead><tr><th>Kurum</th><th>Tür</th><th>F1</th><th>F2</th><th>F3A</th><th>F3Ai</th><th>Top</th><th>Lab</th><th>Bilg</th><th>İnternet</th></tr></thead><tbody>`;
-
-            okullar.forEach(o => {
-                let badgeClass = 'diger';
-                if (o.internet === 'MEB_ADSL') badgeClass = 'adsl';
-                else if (o.internet === 'FATİH_VPN') badgeClass = 'fatih';
-                else if (o.internet === 'VSAT_UYDU') badgeClass = 'uydu';
-
-                html += `<tr>`;
-                html += `<td style="text-align:left">${o.kurumAdi}</td>`;
-                html += `<td style="text-align:left"><span class="badge okul-tur">${o.kurumTuru}</span></td>`;
-                html += `<td>${o.faz1}</td>`;
-                html += `<td>${o.faz2}</td>`;
-                html += `<td>${o.faz3Arcelik}</td>`;
-                html += `<td>${o.faz3Aidata}</td>`;
-                html += `<td><strong>${o.toplamET}</strong></td>`;
-                html += `<td>${o.btLabSayisi}</td>`;
-                html += `<td>${o.btLabBilgisayar}</td>`;
-                html += `<td><span class="badge ${badgeClass}">${o.internet}</span></td>`;
-                html += `</tr>`;
-            });
-
-            html += `</tbody></table></div></td></tr>`;
-        });
-
         if (filteredData.length === 0) {
             html = '<tr><td colspan="11" class="info-message">📌 Okul bulunamadı</td></tr>';
+        } else {
+            ilceler.forEach(ilce => {
+                const okullar = filteredData.filter(r => r.ilce === ilce);
+                const toplamET = okullar.reduce((acc, r) => acc + r.toplamET, 0);
+                const toplamLab = okullar.reduce((acc, r) => acc + r.btLabSayisi, 0);
+                const toplamBilg = okullar.reduce((acc, r) => acc + r.btLabBilgisayar, 0);
+
+                html += `<tr class="district-row" onclick="toggleDetail('${ilce}')">`;
+                html += `<td><span class="toggle-icon" id="icon-${ilce}">▶</span> ${ilce}</td>`;
+                html += `<td colspan="2"><strong>${ilce} Toplam (${okullar.length})</strong></td>`;
+                html += `<td>${okullar.reduce((acc, r) => acc + r.faz1, 0)}</td>`;
+                html += `<td>${okullar.reduce((acc, r) => acc + r.faz2, 0)}</td>`;
+                html += `<td>${okullar.reduce((acc, r) => acc + r.faz3Arcelik, 0)}</td>`;
+                html += `<td>${okullar.reduce((acc, r) => acc + r.faz3Aidata, 0)}</td>`;
+                html += `<td><strong>${toplamET}</strong></td>`;
+                html += `<td>${toplamLab}</td>`;
+                html += `<td>${toplamBilg}</td>`;
+                html += `<td>-</td>`;
+                html += `</tr>`;
+
+                html += `<tr class="detail-row" id="detail-${ilce}">`;
+                html += `<td colspan="11"><div class="detail-inner">`;
+                html += `<table class="detail-table">`;
+                html += `<thead><tr><th>Kurum</th><th>Tür</th><th>F1</th><th>F2</th><th>F3A</th><th>F3Ai</th><th>Top</th><th>Lab</th><th>Bilg</th><th>İnternet</th></tr></thead><tbody>`;
+
+                okullar.forEach(o => {
+                    let badgeClass = 'diger';
+                    if (o.internet === 'MEB_ADSL') badgeClass = 'adsl';
+                    else if (o.internet === 'FATİH_VPN') badgeClass = 'fatih';
+                    else if (o.internet === 'VSAT_UYDU') badgeClass = 'uydu';
+
+                    html += `<tr>`;
+                    html += `<td style="text-align:left">${o.kurumAdi}</td>`;
+                    html += `<td style="text-align:left"><span class="badge okul-tur">${o.kurumTuru}</span></td>`;
+                    html += `<td>${o.faz1}</td>`;
+                    html += `<td>${o.faz2}</td>`;
+                    html += `<td>${o.faz3Arcelik}</td>`;
+                    html += `<td>${o.faz3Aidata}</td>`;
+                    html += `<td><strong>${o.toplamET}</strong></td>`;
+                    html += `<td>${o.btLabSayisi}</td>`;
+                    html += `<td>${o.btLabBilgisayar}</td>`;
+                    html += `<td><span class="badge ${badgeClass}">${o.internet}</span></td>`;
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table></div></td></tr>`;
+            });
         }
 
         document.getElementById('tableBody').innerHTML = html;
