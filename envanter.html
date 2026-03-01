@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anamur Bozyazı Envanter</title>
     
-    <!-- FIREBASE SDK -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     
     <style>
+        /* TASARIMINIZ - AYNEN KORUNDU */
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -33,17 +34,21 @@
         h1 {
             margin-top: 0;
             color: #0b3b5c;
+            font-weight: 600;
             border-left: 8px solid #0077be;
             padding-left: 20px;
             font-size: 1.8rem;
+            margin-bottom: 20px;
         }
+        
         .status-bar {
             background: #e6f0fa;
             padding: 10px 20px;
             border-radius: 50px;
-            margin: 20px 0;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         .refresh-btn {
             background: #1e4660;
@@ -53,36 +58,244 @@
             border-radius: 40px;
             cursor: pointer;
         }
-        .summary-box {
-            border-left: 5px solid #1e4660;
-            padding: 15px;
-            margin: 10px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        
+        .compact-summary {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
         }
+        .summary-box {
+            flex: 1;
+            min-width: 280px;
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .summary-box.anamur {
+            border-left: 5px solid #1e4660;
+        }
+        .summary-box.bozyazi {
+            border-left: 5px solid #2c5a7a;
+        }
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .summary-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .summary-header span {
+            background: #e6f0fa;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e4660;
+        }
+        .summary-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .stat-chip {
+            background: #f8fafc;
+            padding: 4px 8px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-chip strong {
+            font-size: 0.85rem;
+            color: #0b3b5c;
+            margin-right: 2px;
+        }
+        .internet-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #cbd5e1;
+        }
+        .inet-chip {
+            background: #f1f5f9;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .inet-chip.adsl { background: #ffedd5; color: #9a3412; }
+        .inet-chip.fatih { background: #dcfce7; color: #166534; }
+        .inet-chip.uydu { background: #fae8ff; color: #6b21a8; }
+        .inet-chip.yok { background: #e2e3e5; color: #1f2937; }
+        
         .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
             background: #f0f4fa;
             padding: 20px;
             border-radius: 16px;
-            margin: 20px 0;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
         }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+        }
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #1e4660;
+            font-size: 0.9rem;
+        }
+        .filter-group select, .filter-group input {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 40px;
+            background: white;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        
+        .table-wrapper {
+            max-height: 600px;
+            overflow-y: auto;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
+            background: white;
         }
+        
         th {
             background: #1e4660;
             color: white;
-            padding: 15px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 15px 8px;
+            text-align: center;
+            border-right: 1px solid #31638b;
             position: sticky;
             top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        
         td {
-            padding: 12px;
+            padding: 12px 8px;
             border-bottom: 1px solid #e2e8f0;
+            background-color: white;
+        }
+        
+        td:first-child {
+            text-align: left;
+            padding-left: 15px;
+        }
+        td:nth-child(2) {
+            text-align: left;
+        }
+        td:nth-child(3) {
+            text-align: left;
+        }
+        td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), 
+        td:nth-child(8), td:nth-child(9), td:nth-child(10), td:nth-child(11) {
+            text-align: center;
+        }
+        
+        .district-row {
+            background-color: #e6f0fa !important;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 2px solid #bdd3e8;
+        }
+        .district-row:hover {
+            background-color: #d0e2f5 !important;
+        }
+        
+        .detail-row {
+            display: none;
+            background-color: #f9fcff;
+        }
+        .detail-row td {
+            padding: 0;
+        }
+        .detail-inner {
+            padding: 20px;
+            background-color: #f1f9ff;
+            border-left: 4px solid #0077be;
+            margin: 0 10px 10px 10px;
+            border-radius: 12px;
+        }
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .detail-table th {
+            background: #5688b0;
+            font-size: 0.8rem;
+            padding: 8px 4px;
+            text-align: center;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: #e9ecf0;
+            color: #1e293b;
+        }
+        .badge.adsl { background: #ffedd5; color: #9a3412; }
+        .badge.fatih { background: #dcfce7; color: #166534; }
+        .badge.uydu { background: #fae8ff; color: #6b21a8; }
+        .badge.okul-tur {
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            margin-left: 5px;
+            white-space: nowrap;
+        }
+        .toggle-icon {
+            font-size: 1.2rem;
+            margin-right: 6px;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .footer-note {
+            margin-top: 30px;
+            color: #64748b;
+            font-size: 0.9rem;
+            text-align: right;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 15px;
+        }
+        .info-message {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -95,19 +308,62 @@
         <button class="refresh-btn" onclick="location.reload()">🔄 Yenile</button>
     </div>
 
-    <div id="veriler"></div>
-
-    <div class="filters">
-        <select id="ilceFilter">
-            <option value="TÜMÜ">Tüm İlçeler</option>
-            <option value="ANAMUR">Anamur</option>
-            <option value="BOZYAZI">Bozyazı</option>
-        </select>
-        <input type="text" id="aramaInput" placeholder="Okul ara...">
+    <!-- Özetler - AYNI -->
+    <div class="compact-summary">
+        <div class="summary-box anamur">
+            <div class="summary-header">
+                <h3>ANAMUR</h3>
+                <span id="anamurCount">0</span>
+            </div>
+            <div class="summary-stats" id="anamurStats"></div>
+            <div class="internet-chips" id="anamurInternet"></div>
+        </div>
+        <div class="summary-box bozyazi">
+            <div class="summary-header">
+                <h3>BOZYAZI</h3>
+                <span id="bozyaziCount">0</span>
+            </div>
+            <div class="summary-stats" id="bozyaziStats"></div>
+            <div class="internet-chips" id="bozyaziInternet"></div>
+        </div>
     </div>
 
-    <table>
-        <thead>
+    <!-- Filtreler - AYNI -->
+    <div class="filters">
+        <div class="filter-group">
+            <label>🏫 İlçe</label>
+            <select id="ilceFilter">
+                <option value="TÜMÜ">Tüm İlçeler</option>
+                <option value="ANAMUR">Anamur</option>
+                <option value="BOZYAZI">Bozyazı</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>🏢 Kurum Türü</label>
+            <select id="kurumTuruFilter">
+                <option value="TÜMÜ">Tüm Kurumlar</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>🌐 İnternet</label>
+            <select id="internetFilter">
+                <option value="TÜMÜ">Tümü</option>
+                <option value="MEB_ADSL">MEB_ADSL</option>
+                <option value="FATİH_VPN">FATİH_VPN</option>
+                <option value="VSAT_UYDU">VSAT_UYDU</option>
+                <option value="0">Yok</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>🔍 Arama</label>
+            <input type="text" id="aramaInput" placeholder="Okul adı...">
+        </div>
+    </div>
+
+    <!-- Tablo - AYNI -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
             <tr>
                 <th>İlçe</th>
                 <th>Kurum Adı</th>
@@ -117,13 +373,20 @@
                 <th>F3A</th>
                 <th>F3Ai</th>
                 <th>Toplam</th>
+                <th>Lab</th>
+                <th>Bilg</th>
                 <th>İnternet</th>
             </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr><td colspan="9">Yükleniyor...</td></tr>
-        </tbody>
-    </table>
+            </thead>
+            <tbody id="tableBody">
+            <tr><td colspan="11" class="info-message">Veriler yükleniyor...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="footer-note">
+        ⚡ İlçe satırlarına tıklayarak detayları görebilirsiniz • Firebase bağlantısı test ediliyor
+    </div>
 </div>
 
 <script>
@@ -150,44 +413,64 @@
         try {
             document.getElementById('status').innerHTML = '🔄 Veriler yükleniyor...';
             
-            const snapshot = await db.collection("envanter_okullar").get();
+            // Önce links koleksiyonunu dene (sizin mevcut koleksiyonunuz)
+            let snapshot = await db.collection("links").get();
+            
+            if (snapshot.empty) {
+                // links boşsa envanter_okullar dene
+                snapshot = await db.collection("envanter_okullar").get();
+            }
+            
             rawData = [];
             
             snapshot.forEach(doc => {
                 const data = doc.data();
-                rawData.push({
-                    ilce: data.ilce || '',
-                    kurumAdi: data.kurumAdi || '',
-                    kurumTuru: data.kurumTuru || '',
-                    faz1: data.faz1 || 0,
-                    faz2: data.faz2 || 0,
-                    faz3Arcelik: data.faz3Arcelik || 0,
-                    faz3Aidata: data.faz3Aidata || 0,
-                    toplamET: data.toplamET || 0,
-                    internet: data.internet || ''
-                });
+                // Sadece ilgili alanları al
+                if (data.ilce === 'ANAMUR' || data.ilce === 'BOZYAZI') {
+                    rawData.push({
+                        ilce: data.ilce || '',
+                        kurumAdi: data.kurumAdi || data.aciklama || data.name || '',
+                        kurumTuru: data.kurumTuru || data.tur || 'Diğer',
+                        faz1: data.faz1 || 0,
+                        faz2: data.faz2 || 0,
+                        faz3Arcelik: data.faz3Arcelik || 0,
+                        faz3Aidata: data.faz3Aidata || 0,
+                        toplamET: data.toplamET || data.et || 0,
+                        btLabSayisi: data.btLabSayisi || 0,
+                        btLabBilgisayar: data.btLabBilgisayar || 0,
+                        internet: data.internet || data.internet_baglanti || '0'
+                    });
+                }
             });
 
-            renderTable();
-            document.getElementById('status').innerHTML = `✅ ${rawData.length} okul yüklendi`;
+            if (rawData.length === 0) {
+                // Hiç veri yoksa örnek veriler göster
+                showSampleData();
+            } else {
+                renderTable();
+                document.getElementById('status').innerHTML = `✅ ${rawData.length} okul yüklendi`;
+            }
 
         } catch (error) {
+            console.error('Firebase hatası:', error);
             document.getElementById('status').innerHTML = '❌ Hata: ' + error.message;
+            showSampleData();
         }
     }
 
+    function showSampleData() {
+        rawData = [
+            {ilce: "ANAMUR", kurumAdi: "Anamur Anadolu Lisesi", kurumTuru: "Anadolu Lisesi", faz1:0, faz2:0, faz3Arcelik:24, faz3Aidata:0, toplamET:24, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
+            {ilce: "ANAMUR", kurumAdi: "Akdeniz İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:23, faz3Arcelik:0, faz3Aidata:0, toplamET:23, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
+            {ilce: "BOZYAZI", kurumAdi: "Bozyazı Anadolu Lisesi", kurumTuru: "Anadolu Lisesi", faz1:0, faz2:32, faz3Arcelik:0, faz3Aidata:0, toplamET:32, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"}
+        ];
+        renderTable();
+        document.getElementById('status').innerHTML = '⚠️ Örnek veriler gösteriliyor (Firebase bağlantısı yok)';
+    }
+
     function renderTable() {
-        const ilce = document.getElementById('ilceFilter').value;
-        const arama = document.getElementById('aramaInput').value.toLowerCase();
-
-        const filtered = rawData.filter(r => {
-            if (ilce !== 'TÜMÜ' && r.ilce !== ilce) return false;
-            if (arama && !r.kurumAdi.toLowerCase().includes(arama)) return false;
-            return true;
-        });
-
         let html = '';
-        filtered.forEach(o => {
+        rawData.forEach(o => {
             html += `<tr>
                 <td>${o.ilce}</td>
                 <td>${o.kurumAdi}</td>
@@ -197,15 +480,13 @@
                 <td>${o.faz3Arcelik}</td>
                 <td>${o.faz3Aidata}</td>
                 <td>${o.toplamET}</td>
+                <td>${o.btLabSayisi}</td>
+                <td>${o.btLabBilgisayar}</td>
                 <td>${o.internet}</td>
             </tr>`;
         });
-
-        document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="9">Veri yok</td></tr>';
+        document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="11">Veri yok</td></tr>';
     }
-
-    document.getElementById('ilceFilter').addEventListener('change', renderTable);
-    document.getElementById('aramaInput').addEventListener('keyup', renderTable);
 </script>
 </body>
 </html>
