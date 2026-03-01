@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anamur Bozyazı Envanter</title>
     <style>
-        /* TAMAMEN AYNI TASARIM - SADECE METİN HİZALAMASI DEĞİŞTİ */
+        /* TAMAMEN AYNI TASARIM */
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -169,7 +169,7 @@
             font-weight: 600;
             font-size: 0.9rem;
             padding: 15px 8px;
-            text-align: center; /* Başlıklar ortada kalsın */
+            text-align: center;
             border-right: 1px solid #31638b;
             position: sticky;
             top: 0;
@@ -183,35 +183,32 @@
             background-color: white;
         }
         
-        /* Metin hizalamaları - SOLA HİZALI */
+        /* Sol hizalama */
         td:first-child {
-            text-align: left; /* İlçe sütunu sola hizalı */
+            text-align: left;
             padding-left: 15px;
         }
         td:nth-child(2) {
-            text-align: left; /* Kurum Adı sütunu sola hizalı */
+            text-align: left;
         }
         td:nth-child(3) {
-            text-align: left; /* Kurum Türü sütunu sola hizalı */
+            text-align: left;
         }
         td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), 
         td:nth-child(8), td:nth-child(9), td:nth-child(10), td:nth-child(11) {
-            text-align: center; /* Sayısal sütunlar ortada kalsın */
+            text-align: center;
         }
         
         .district-row td {
-            text-align: left; /* İlçe toplam satırı da sola hizalı */
+            text-align: left;
         }
         .district-row td:first-child {
             text-align: left;
             font-weight: 700;
         }
-        .district-row td:nth-child(2) {
-            text-align: left;
-        }
         
         .detail-table td {
-            text-align: left; /* Detay tablosunda da sola hizalı */
+            text-align: left;
         }
         .detail-table td:first-child {
             text-align: left;
@@ -221,7 +218,7 @@
             text-align: left;
         }
         .detail-table td:nth-child(n+3):nth-child(-n+10) {
-            text-align: center; /* Sayısal sütunlar ortada */
+            text-align: center;
         }
         
         tbody tr:hover {
@@ -317,12 +314,22 @@
             color: #666;
             font-size: 1.2rem;
         }
+        .last-update {
+            color: #0077be;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>📊 Anamur Bozyazı Envanter</h1>
     
+    <div class="last-update" id="lastUpdate">
+        🔄 Son güncelleme: --
+    </div>
+
     <!-- Özetler -->
     <div class="compact-summary">
         <div class="summary-box anamur">
@@ -435,184 +442,171 @@
     </div>
     
     <div class="footer-note">
-        🔄 Veriler otomatik güncellenir • Sayfayı yenileyin
+        🔄 Veriler Google Sheets'ten canlı olarak çekilir • Sayfayı yenileyin
     </div>
 </div>
 
 <script>
     // =============================================
-    // HAZIR VERİ
+    // GOOGLE SHEETS BAĞLANTILARI - CANLI VERİ
     // =============================================
-    const rawData = [
-        {ilce: "ANAMUR", kurumAdi: "Anamur Öğretmenevi ve Akşam Sanat Okulu", kurumTuru: "Akşam Sanat Okulu (DHGM)", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Anadolu Lisesi", kurumTuru: "Anadolu Lisesi", faz1:0, faz2:0, faz3Arcelik:24, faz3Aidata:0, toplamET:24, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Cumhuriyet Anadolu Lisesi", kurumTuru: "Anadolu Lisesi", faz1:28, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:28, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "İlçe Milli Eğitim Müdürlüğü", kurumTuru: "İlçe Milli Eğitim Müdürlüğü", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Halk Eğitimi Merkezi", kurumTuru: "Halk Eğitimi Merkezi", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:2, btLabBilgisayar:10, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Şehit Yüksel Alçın Anadolu İmam Hatip Lisesi", kurumTuru: "Anadolu İmam Hatip Lisesi", faz1:10, faz2:6, faz3Arcelik:0, faz3Aidata:0, toplamET:16, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Rüştü Kazım Yücelen Mesleki Eğitim Merkezi", kurumTuru: "Mesleki Eğitim Merkezi", faz1:1, faz2:0, faz3Arcelik:8, faz3Aidata:0, toplamET:9, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur İsmihan Çerçi Anaokulu", kurumTuru: "Anaokulu", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Bilim ve Sanat Merkezi", kurumTuru: "BİLSEM (Üstün veya Özel Yetenekliler)", faz1:6, faz2:6, faz3Arcelik:3, faz3Aidata:0, toplamET:15, btLabSayisi:1, btLabBilgisayar:19, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Akdeniz İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:23, faz3Arcelik:0, faz3Aidata:0, toplamET:23, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Şükrü Köymen İlkokulu", kurumTuru: "İlkokul", faz1:1, faz2:20, faz3Arcelik:0, faz3Aidata:0, toplamET:21, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Fatih İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:21, faz3Arcelik:0, faz3Aidata:0, toplamET:21, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Güneybahşiş İlkokulu", kurumTuru: "İlkokul", faz1:3, faz2:2, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Boğuntu İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Gercebahşiş Yenimahalle İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "VSAT_UYDU"},
-        {ilce: "ANAMUR", kurumAdi: "Malaklar İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:18, faz3Arcelik:0, faz3Aidata:0, toplamET:18, btLabSayisi:0, btLabBilgisayar:0, internet: "VSAT_UYDU"},
-        {ilce: "ANAMUR", kurumAdi: "Bozdoğan Mamure İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:12, faz3Arcelik:0, faz3Aidata:0, toplamET:12, btLabSayisi:1, btLabBilgisayar:7, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anıtlı Alanoba İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Evciler Nihat Sarı İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:8, faz3Arcelik:0, faz3Aidata:0, toplamET:8, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Güngören İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:7, faz3Arcelik:0, faz3Aidata:0, toplamET:7, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Karalarbahşiş İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:11, faz3Arcelik:0, faz3Aidata:0, toplamET:11, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Çeltikçi İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:22, faz3Arcelik:0, faz3Aidata:0, toplamET:22, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Rüştü Kazım Yücelen İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:12, faz3Arcelik:0, faz3Aidata:0, toplamET:12, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Ovabaşı İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:9, faz3Arcelik:0, faz3Aidata:0, toplamET:9, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Demirören Alan İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:9, faz3Arcelik:0, faz3Aidata:0, toplamET:9, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Köprübaşı İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:11, faz3Arcelik:0, faz3Aidata:0, toplamET:11, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Ortaköy Hidayet Sinanoğlu İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:1, btLabBilgisayar:10, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Kalınören İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Çarıklar Efeler İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Zehra Marulyalı İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur 15 Temmuz Milli İrade İlkokulu", kurumTuru: "İlkokul", faz1:3, faz2:13, faz3Arcelik:0, faz3Aidata:0, toplamET:16, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Kıbrıs İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Şehit Hasan Kuş İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:24, toplamET:24, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:31, faz3Arcelik:0, faz3Aidata:0, toplamET:31, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Vakıfbank Atatürk Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:40, faz3Arcelik:0, faz3Aidata:0, toplamET:40, btLabSayisi:1, btLabBilgisayar:24, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Anıtlı Alanoba Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Bozdoğan Mamure Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Gercebahşiş Sadet Tuna Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Demirören Alan Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Ortaköy Hidayet Sinanoğlu Ortaokulu", kurumTuru: "Ortaokul", faz1:19, faz2:2, faz3Arcelik:0, faz3Aidata:0, toplamET:21, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Kalınören Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:13, faz3Arcelik:0, faz3Aidata:0, toplamET:13, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Rüştü Kazım Yücelen Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Ovabaşı Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Çeltikçi Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Evciler Nihat Sarı Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Karalarbahşiş Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Köprübaşı Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Güngören Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Malaklar Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Şehit Şükrü Ünlü Ortaokulu", kurumTuru: "Ortaokul", faz1:16, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:21, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Cengiz Topel İmam Hatip Ortaokulu", kurumTuru: "İmam Hatip Ortaokulu", faz1:0, faz2:9, faz3Arcelik:0, faz3Aidata:0, toplamET:9, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Özel Eğitim Uygulama Okulu I. Kademe", kurumTuru: "Özel Eğitim Uygulama Okulu (I. Kademe)", faz1:0, faz2:0, faz3Arcelik:5, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Zehra Marulyalı Yatılı Bölge Ortaokulu", kurumTuru: "Yatılı Bölge Ortaokulu", faz1:0, faz2:20, faz3Arcelik:0, faz3Aidata:0, toplamET:20, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Şehit İbrahim Armut Fen Lisesi", kurumTuru: "Fen Lisesi", faz1:0, faz2:3, faz3Arcelik:16, faz3Aidata:0, toplamET:19, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "ANAMUR", kurumAdi: "Gazi Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:0, faz2:32, faz3Arcelik:0, faz3Aidata:0, toplamET:32, btLabSayisi:3, btLabBilgisayar:49, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Ticaret Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:0, faz2:26, faz3Arcelik:0, faz3Aidata:0, toplamET:26, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Valide Sultan Kız Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:0, faz2:18, faz3Arcelik:0, faz3Aidata:0, toplamET:18, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Abdulkadir Perşembe Vakfı Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:5, faz2:6, faz3Arcelik:0, faz3Aidata:0, toplamET:11, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Anamur Rehberlik ve Araştırma Merkezi", kurumTuru: "Rehberlik ve Araştırma Merkezi", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "BOZYAZI", kurumAdi: "Bozyazı Öğretmenevi Müdürlüğü ve Akşam Sanat Okulu", kurumTuru: "Akşam Sanat Okulu (DHGM)", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Bozyazı Anadolu Lisesi", kurumTuru: "Anadolu Lisesi", faz1:0, faz2:32, faz3Arcelik:0, faz3Aidata:0, toplamET:32, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Bozyazı Durmuş Tufan Anadolu İmam Hatip Lisesi", kurumTuru: "İmam Hatip Lisesi", faz1:0, faz2:21, faz3Arcelik:0, faz3Aidata:0, toplamET:21, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "İlçe Milli Eğitim Müdürlüğü", kurumTuru: "İlçe Milli Eğitim Müdürlüğü", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Bozyazı Halk Eğitimi Merkezi", kurumTuru: "Halk Eğitimi Merkezi", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "BOZYAZI", kurumAdi: "Bozyazı İlk Adım Anaokulu", kurumTuru: "Anaokulu", faz1:0, faz2:4, faz3Arcelik:0, faz3Aidata:0, toplamET:4, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Bozyazı İlkokulu", kurumTuru: "İlkokul", faz1:25, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:25, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "Hüseyin Hüsnü Tekışık İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:8, faz3Arcelik:0, faz3Aidata:0, toplamET:8, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Kökobası İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:21, faz3Arcelik:0, faz3Aidata:0, toplamET:21, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Tekeli İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "BOZYAZI", kurumAdi: "Tekmen İlkokulu", kurumTuru: "İlkokul", faz1:2, faz2:8, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Vali Çetin Birmek İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:14, faz3Arcelik:0, faz3Aidata:0, toplamET:14, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "100. Yıl Örtülü İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:6, faz3Arcelik:0, faz3Aidata:0, toplamET:6, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Cumhuriyet İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "Kötekler İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "Çopurlu İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:11, faz3Arcelik:0, faz3Aidata:0, toplamET:11, btLabSayisi:1, btLabBilgisayar:16, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Kaledibi Şehit Turhan Kılıç İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Beyreli İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:6, faz3Arcelik:0, faz3Aidata:0, toplamET:6, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "BOZYAZI", kurumAdi: "Lütfiye Keskin İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:17, faz3Arcelik:0, faz3Aidata:0, toplamET:17, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Bozyazı Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:42, faz3Arcelik:0, faz3Aidata:0, toplamET:42, btLabSayisi:1, btLabBilgisayar:20, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "Kökobası Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "BOZYAZI", kurumAdi: "Lütfiye Keskin Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "BOZYAZI", kurumAdi: "Şehit Sedat Yabalak Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:18, faz3Arcelik:0, faz3Aidata:0, toplamET:18, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "Atatürk Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Gazi Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:7, faz3Arcelik:0, faz3Aidata:0, toplamET:7, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "Şehit Murat Namdar Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:14, faz3Arcelik:0, faz3Aidata:0, toplamET:14, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "Tekeli Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:11, faz3Arcelik:0, faz3Aidata:0, toplamET:11, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Tekmen Ortaokulu", kurumTuru: "Ortaokul", faz1:14, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:14, btLabSayisi:1, btLabBilgisayar:7, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "Bozyazı 15 Temmuz Millî İrade Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:3, faz2:9, faz3Arcelik:0, faz3Aidata:0, toplamET:12, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Bozyazı Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:5, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:15, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"}
-    ];
-
-    // İlçe özet verileri
-    const ilceOzet = {
-        ANAMUR: {
-            tablet: 1395,
-            yazici: 38,
-            kamera: 4,
-            zKutuphane: 4,
-            adsl: 26,
-            fatih: 12,
-            uydu: 2,
-            yok: 20
-        },
-        BOZYAZI: {
-            tablet: 405,
-            yazici: 21,
-            kamera: 2,
-            zKutuphane: 1,
-            adsl: 15,
-            fatih: 10,
-            uydu: 0,
-            yok: 6
-        }
-    };
-
-    // Benzersiz kurum türlerini bul
-    const uniqueTurler = [...new Set(rawData.map(r => r.kurumTuru))].sort();
+    const SHEET_ID = '2PACX-1vQJwf-VYKADvh1hPpoLQilHrTthG-Ig5H-gyTeP75svYqiMt8HTbUAJKO1eLH1BgzLKWZUKYaujqkZn';
+    const OKUL_OZET_GID = '1883249581';
+    const ILCE_OZET_GID = '1351961907';
     
-    // Kurum türü filtresini doldur
-    const turFilter = document.getElementById('kurumTuruFilter');
-    uniqueTurler.forEach(tur => {
-        turFilter.innerHTML += `<option value="${tur}">${tur}</option>`;
+    // =============================================
+    // VERİLERİ ÇEKEN FONKSİYONLAR
+    // =============================================
+    let rawData = [];
+    let ilceOzetData = { ANAMUR: {}, BOZYAZI: {} };
+    let uniqueKurumTurleri = [];
+
+    // Sayfa yüklendiğinde verileri çek
+    window.addEventListener('load', function() {
+        loadAllData();
     });
 
-    // Özetleri güncelle
-    function updateSummaries() {
-        // Anamur
-        const anamurData = rawData.filter(r => r.ilce === 'ANAMUR');
-        document.getElementById('anamurCount').innerText = anamurData.length + ' Kurum';
-        document.getElementById('anamurET').innerText = anamurData.reduce((acc, r) => acc + r.toplamET, 0);
-        document.getElementById('anamurF1').innerText = anamurData.reduce((acc, r) => acc + r.faz1, 0);
-        document.getElementById('anamurF2').innerText = anamurData.reduce((acc, r) => acc + r.faz2, 0);
-        document.getElementById('anamurF3A').innerText = anamurData.reduce((acc, r) => acc + r.faz3Arcelik, 0);
-        document.getElementById('anamurF3Ai').innerText = anamurData.reduce((acc, r) => acc + r.faz3Aidata, 0);
-        document.getElementById('anamurBtLab').innerText = anamurData.reduce((acc, r) => acc + r.btLabSayisi, 0);
-        document.getElementById('anamurBtBilg').innerText = anamurData.reduce((acc, r) => acc + r.btLabBilgisayar, 0);
-        
-        // Bozyazı
-        const bozyaziData = rawData.filter(r => r.ilce === 'BOZYAZI');
-        document.getElementById('bozyaziCount').innerText = bozyaziData.length + ' Kurum';
-        document.getElementById('bozyaziET').innerText = bozyaziData.reduce((acc, r) => acc + r.toplamET, 0);
-        document.getElementById('bozyaziF1').innerText = bozyaziData.reduce((acc, r) => acc + r.faz1, 0);
-        document.getElementById('bozyaziF2').innerText = bozyaziData.reduce((acc, r) => acc + r.faz2, 0);
-        document.getElementById('bozyaziF3A').innerText = bozyaziData.reduce((acc, r) => acc + r.faz3Arcelik, 0);
-        document.getElementById('bozyaziF3Ai').innerText = bozyaziData.reduce((acc, r) => acc + r.faz3Aidata, 0);
-        document.getElementById('bozyaziBtLab').innerText = bozyaziData.reduce((acc, r) => acc + r.btLabSayisi, 0);
-        document.getElementById('bozyaziBtBilg').innerText = bozyaziData.reduce((acc, r) => acc + r.btLabBilgisayar, 0);
-        
-        // İlçe özet bilgileri
-        document.getElementById('anamurTablet').innerText = ilceOzet.ANAMUR.tablet;
-        document.getElementById('anamurYazici').innerText = ilceOzet.ANAMUR.yazici;
-        document.getElementById('anamurKamera').innerText = ilceOzet.ANAMUR.kamera;
-        document.getElementById('anamurZkut').innerText = ilceOzet.ANAMUR.zKutuphane;
-        document.getElementById('anamurAdsl').innerText = ilceOzet.ANAMUR.adsl;
-        document.getElementById('anamurFatih').innerText = ilceOzet.ANAMUR.fatih;
-        document.getElementById('anamurUydu').innerText = ilceOzet.ANAMUR.uydu;
-        document.getElementById('anamurYok').innerText = ilceOzet.ANAMUR.yok;
-        
-        document.getElementById('bozyaziTablet').innerText = ilceOzet.BOZYAZI.tablet;
-        document.getElementById('bozyaziYazici').innerText = ilceOzet.BOZYAZI.yazici;
-        document.getElementById('bozyaziKamera').innerText = ilceOzet.BOZYAZI.kamera;
-        document.getElementById('bozyaziZkut').innerText = ilceOzet.BOZYAZI.zKutuphane;
-        document.getElementById('bozyaziAdsl').innerText = ilceOzet.BOZYAZI.adsl;
-        document.getElementById('bozyaziFatih').innerText = ilceOzet.BOZYAZI.fatih;
-        document.getElementById('bozyaziUydu').innerText = ilceOzet.BOZYAZI.uydu;
-        document.getElementById('bozyaziYok').innerText = ilceOzet.BOZYAZI.yok;
+    async function loadAllData() {
+        try {
+            await Promise.all([
+                loadOkulOzet(),
+                loadIlceOzet()
+            ]);
+            
+            document.getElementById('lastUpdate').innerHTML = `🔄 Son güncelleme: ${new Date().toLocaleString('tr-TR')}`;
+            
+            updateSummaries();
+            renderTable();
+            
+        } catch (error) {
+            console.error('Veri yüklenirken hata:', error);
+            showError('Veriler yüklenirken hata oluştu. Lütfen sayfayı yenileyin.');
+        }
     }
 
-    // Filtreleme fonksiyonu
+    async function loadOkulOzet() {
+        const url = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${OKUL_OZET_GID}&single=true&output=csv`;
+        
+        const response = await fetch(url);
+        const csvText = await response.text();
+        const rows = parseCSV(csvText);
+        
+        rawData = [];
+        
+        for (let i = 1; i < rows.length; i++) {
+            if (rows[i].length < 12) continue;
+            
+            const row = {
+                ilce: (rows[i][0] || '').trim(),
+                kurumKodu: parseInt(rows[i][1]) || 0,
+                kurumAdi: (rows[i][2] || '').trim(),
+                kurumTuru: (rows[i][3] || 'Diğer').trim(),
+                faz1: parseInt(rows[i][4]) || 0,
+                faz2: parseInt(rows[i][5]) || 0,
+                faz3Arcelik: parseInt(rows[i][6]) || 0,
+                faz3Aidata: parseInt(rows[i][7]) || 0,
+                toplamET: parseInt(rows[i][8]) || 0,
+                btLabSayisi: parseInt(rows[i][9]) || 0,
+                btLabBilgisayar: parseInt(rows[i][10]) || 0,
+                internet: (rows[i][11] || '0').trim()
+            };
+            
+            if (row.ilce && (row.ilce === 'ANAMUR' || row.ilce === 'BOZYAZI')) {
+                rawData.push(row);
+            }
+        }
+        
+        // Benzersiz kurum türlerini bul
+        const turSet = new Set();
+        rawData.forEach(r => {
+            if (r.kurumTuru) turSet.add(r.kurumTuru);
+        });
+        uniqueKurumTurleri = Array.from(turSet).sort();
+        
+        // Kurum türü filtresini doldur
+        const turFilter = document.getElementById('kurumTuruFilter');
+        turFilter.innerHTML = '<option value="TÜMÜ">Tüm Kurumlar</option>';
+        uniqueKurumTurleri.forEach(tur => {
+            turFilter.innerHTML += `<option value="${tur}">${tur}</option>`;
+        });
+    }
+
+    async function loadIlceOzet() {
+        const url = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${ILCE_OZET_GID}&single=true&output=csv`;
+        
+        const response = await fetch(url);
+        const csvText = await response.text();
+        const rows = parseCSV(csvText);
+        
+        for (let i = 1; i < rows.length; i++) {
+            if (rows[i].length < 14) continue;
+            
+            const ilce = (rows[i][0] || '').trim();
+            if (ilce === 'ANAMUR' || ilce === 'BOZYAZI') {
+                ilceOzetData[ilce] = {
+                    tablet: parseInt(rows[i][6]) || 0,
+                    yazici: parseInt(rows[i][7]) || 0,
+                    kamera: parseInt(rows[i][8]) || 0,
+                    zKutuphane: parseInt(rows[i][9]) || 0,
+                    adsl: parseInt(rows[i][10]) || 0,
+                    fatih: parseInt(rows[i][11]) || 0,
+                    uydu: parseInt(rows[i][12]) || 0,
+                    yok: parseInt(rows[i][13]) || 0
+                };
+            }
+        }
+    }
+
+    function parseCSV(csvText) {
+        const lines = csvText.split('\n');
+        return lines.map(line => {
+            const matches = line.match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g);
+            return matches ? matches.map(m => m.replace(/^"|"$/g, '').trim()) : [];
+        });
+    }
+
+    function showError(message) {
+        document.getElementById('tableBody').innerHTML = `
+            <tr><td colspan="11" class="error-message">
+                ❌ ${message}
+            </td></tr>
+        `;
+    }
+
+    function updateSummaries() {
+        const anamurData = rawData.filter(r => r.ilce === 'ANAMUR');
+        const bozyaziData = rawData.filter(r => r.ilce === 'BOZYAZI');
+        
+        // Anamur
+        document.getElementById('anamurCount').innerText = anamurData.length + ' Kurum';
+        updateIlceSummary('anamur', anamurData, 'ANAMUR');
+        
+        // Bozyazı
+        document.getElementById('bozyaziCount').innerText = bozyaziData.length + ' Kurum';
+        updateIlceSummary('bozyazi', bozyaziData, 'BOZYAZI');
+    }
+
+    function updateIlceSummary(prefix, data, ilce) {
+        document.getElementById(prefix + 'ET').innerText = data.reduce((acc, r) => acc + r.toplamET, 0);
+        document.getElementById(prefix + 'F1').innerText = data.reduce((acc, r) => acc + r.faz1, 0);
+        document.getElementById(prefix + 'F2').innerText = data.reduce((acc, r) => acc + r.faz2, 0);
+        document.getElementById(prefix + 'F3A').innerText = data.reduce((acc, r) => acc + r.faz3Arcelik, 0);
+        document.getElementById(prefix + 'F3Ai').innerText = data.reduce((acc, r) => acc + r.faz3Aidata, 0);
+        document.getElementById(prefix + 'BtLab').innerText = data.reduce((acc, r) => acc + r.btLabSayisi, 0);
+        document.getElementById(prefix + 'BtBilg').innerText = data.reduce((acc, r) => acc + r.btLabBilgisayar, 0);
+        
+        if (ilceOzetData[ilce]) {
+            document.getElementById(prefix + 'Tablet').innerText = ilceOzetData[ilce].tablet || 0;
+            document.getElementById(prefix + 'Yazici').innerText = ilceOzetData[ilce].yazici || 0;
+            document.getElementById(prefix + 'Kamera').innerText = ilceOzetData[ilce].kamera || 0;
+            document.getElementById(prefix + 'Zkut').innerText = ilceOzetData[ilce].zKutuphane || 0;
+            document.getElementById(prefix + 'Adsl').innerText = ilceOzetData[ilce].adsl || 0;
+            document.getElementById(prefix + 'Fatih').innerText = ilceOzetData[ilce].fatih || 0;
+            document.getElementById(prefix + 'Uydu').innerText = ilceOzetData[ilce].uydu || 0;
+            document.getElementById(prefix + 'Yok').innerText = ilceOzetData[ilce].yok || 0;
+        }
+    }
+
     function filterData() {
         const ilce = document.getElementById('ilceFilter').value;
         const tur = document.getElementById('kurumTuruFilter').value;
@@ -631,7 +625,6 @@
         });
     }
 
-    // Tabloyu çiz
     function renderTable() {
         const filtered = filterData();
         const ilceler = [...new Set(filtered.map(r => r.ilce))].sort();
@@ -691,7 +684,6 @@
         
         document.getElementById('tableBody').innerHTML = html;
         
-        // Tıklama olaylarını ekle
         document.querySelectorAll('.district-row').forEach(row => {
             row.addEventListener('click', function() {
                 const ilce = this.dataset.ilce;
@@ -710,10 +702,6 @@
     document.getElementById('kurumTuruFilter').addEventListener('change', renderTable);
     document.getElementById('internetFilter').addEventListener('change', renderTable);
     document.getElementById('aramaInput').addEventListener('input', renderTable);
-
-    // İlk yükleme
-    updateSummaries();
-    renderTable();
 </script>
 </body>
 </html>
