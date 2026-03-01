@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anamur Bozyazı Envanter</title>
     <style>
-        /* TAMAMEN AYNI TASARIM */
+        /* TAMAMEN AYNI TASARIM - SADECE METİN HİZALAMASI DEĞİŞTİ */
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -169,7 +169,7 @@
             font-weight: 600;
             font-size: 0.9rem;
             padding: 15px 8px;
-            text-align: center;
+            text-align: center; /* Başlıklar ortada kalsın */
             border-right: 1px solid #31638b;
             position: sticky;
             top: 0;
@@ -180,8 +180,52 @@
         td {
             padding: 12px 8px;
             border-bottom: 1px solid #e2e8f0;
-            text-align: center;
             background-color: white;
+        }
+        
+        /* Metin hizalamaları - SOLA HİZALI */
+        td:first-child {
+            text-align: left; /* İlçe sütunu sola hizalı */
+            padding-left: 15px;
+        }
+        td:nth-child(2) {
+            text-align: left; /* Kurum Adı sütunu sola hizalı */
+        }
+        td:nth-child(3) {
+            text-align: left; /* Kurum Türü sütunu sola hizalı */
+        }
+        td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), 
+        td:nth-child(8), td:nth-child(9), td:nth-child(10), td:nth-child(11) {
+            text-align: center; /* Sayısal sütunlar ortada kalsın */
+        }
+        
+        .district-row td {
+            text-align: left; /* İlçe toplam satırı da sola hizalı */
+        }
+        .district-row td:first-child {
+            text-align: left;
+            font-weight: 700;
+        }
+        .district-row td:nth-child(2) {
+            text-align: left;
+        }
+        
+        .detail-table td {
+            text-align: left; /* Detay tablosunda da sola hizalı */
+        }
+        .detail-table td:first-child {
+            text-align: left;
+            padding-left: 10px;
+        }
+        .detail-table td:nth-child(2) {
+            text-align: left;
+        }
+        .detail-table td:nth-child(n+3):nth-child(-n+10) {
+            text-align: center; /* Sayısal sütunlar ortada */
+        }
+        
+        tbody tr:hover {
+            background-color: #f8fafd;
         }
         
         .district-row {
@@ -217,6 +261,7 @@
             background: #5688b0;
             font-size: 0.8rem;
             padding: 8px 4px;
+            text-align: center;
         }
         .badge {
             display: inline-block;
@@ -264,6 +309,13 @@
             padding: 20px;
             border-radius: 12px;
             text-align: center;
+        }
+        .info-message {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -389,7 +441,7 @@
 
 <script>
     // =============================================
-    // HAZIR VERİ - Google Sheets'ten manuel ekledim
+    // HAZIR VERİ
     // =============================================
     const rawData = [
         {ilce: "ANAMUR", kurumAdi: "Anamur Öğretmenevi ve Akşam Sanat Okulu", kurumTuru: "Akşam Sanat Okulu (DHGM)", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
@@ -620,8 +672,8 @@
                     else if (o.internet === 'VSAT_UYDU') badgeClass = 'uydu';
                     
                     html += `<tr>`;
-                    html += `<td>${o.kurumAdi}</td>`;
-                    html += `<td><span class="badge okul-tur">${o.kurumTuru}</span></td>`;
+                    html += `<td style="text-align:left">${o.kurumAdi}</td>`;
+                    html += `<td style="text-align:left"><span class="badge okul-tur">${o.kurumTuru}</span></td>`;
                     html += `<td>${o.faz1}</td>`;
                     html += `<td>${o.faz2}</td>`;
                     html += `<td>${o.faz3Arcelik}</td>`;
