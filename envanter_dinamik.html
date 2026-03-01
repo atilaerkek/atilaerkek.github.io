@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anamur Bozyazı Envanter</title>
     <style>
-        /* TAMAMEN AYNI TASARIM */
+        /* TAMAMEN AYNI TASARIM - HİÇ DEĞİŞMEDİ */
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -313,19 +313,22 @@
             margin-bottom: 10px;
             text-align: right;
         }
-        .error-message {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-            text-align: center;
+        .update-status {
+            background: #e6f0fa;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: #1e4660;
+            margin-bottom: 15px;
+            display: inline-block;
         }
     </style>
+    <!-- PapaParse ile CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 <div class="container">
-    <h1>📊 Anamur Bozyazı Envanter (JSONP)</h1>
+    <h1>📊 Anamur Bozyazı Envanter</h1>
     
     <div class="last-update" id="lastUpdate">
         🔄 Veriler yükleniyor...
@@ -443,13 +446,14 @@
     </div>
     
     <div class="footer-note">
-        🔄 JSONP ile Google Sheets'ten canlı veri çekiliyor
+        <span id="updateStatus" class="update-status">⚡ Yedek veriler gösteriliyor</span>
+        🔄 Sayfayı yenileyin, Google Sheets'ten güncel veriler çekilir
     </div>
 </div>
 
 <script>
     // =============================================
-    // YEDEK VERİLER (JSONP çalışmazsa gösterilecek)
+    // YEDEK VERİLER (Her zaman hazır)
     // =============================================
     const BACKUP_DATA = {
         okul: [
@@ -550,51 +554,132 @@
     };
 
     // =============================================
+    // GOOGLE SHEETS BAĞLANTILARI
+    // =============================================
+    const SHEET_ID = '2PACX-1vQJwf-VYKADvh1hPpoLQilHrTthG-Ig5H-gyTeP75svYqiMt8HTbUAJKO1eLH1BgzLKWZUKYaujqkZn';
+    const GID_OKUL = '1883249581';
+    const GID_ILCE = '1351961907';
+    
+    const CSV_URLS = {
+        okul: `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${GID_OKUL}&single=true&output=csv`,
+        ilce: `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${GID_ILCE}&single=true&output=csv`
+    };
+
+    // =============================================
     // ANA DEĞİŞKENLER
     // =============================================
     let rawData = [];
     let ilceOzetData = { ANAMUR: {}, BOZYAZI: {} };
     let uniqueKurumTurleri = [];
-    let useBackup = false;
 
     // Sayfa yüklendiğinde
     window.addEventListener('load', function() {
-        // Önce yedeği yükle (her zaman gösterilecek)
+        // Önce yedek verileri yükle (sayfa hemen dolsun)
         loadBackupData();
         
-        // Sonra canlı veriyi dene
-        tryLoadLiveData();
+        // Sonra canlı verileri çekmeyi dene
+        loadLiveData();
     });
 
     function loadBackupData() {
         rawData = BACKUP_DATA.okul;
         ilceOzetData = BACKUP_DATA.ilce;
         
-        // Benzersiz kurum türlerini bul
+        updateKurumTuruFilter();
+        updateSummaries();
+        renderTable();
+        
+        document.getElementById('lastUpdate').innerHTML = `🔄 Son güncelleme: ${new Date().toLocaleString('tr-TR')} (Yedek)`;
+        document.getElementById('updateStatus').innerHTML = '⚡ Yedek veriler gösteriliyor - Canlı veri çekiliyor...';
+    }
+
+    async function loadLiveData() {
+        try {
+            // Her iki CSV'yi paralel çek
+            const [okulCsv, ilceCsv] = await Promise.all([
+                fetch(CSV_URLS.okul).then(r => r.text()),
+                fetch(CSV_URLS.ilce).then(r => r.text())
+            ]);
+
+            // CSV'leri parse et
+            parseOkulCSV(okulCsv);
+            parseIlceCSV(ilceCsv);
+
+            // Başarılı oldu, ekranı güncelle
+            updateKurumTuruFilter();
+            updateSummaries();
+            renderTable();
+            
+            document.getElementById('lastUpdate').innerHTML = `🔄 Son güncelleme: ${new Date().toLocaleString('tr-TR')} (Canlı)`;
+            document.getElementById('updateStatus').innerHTML = '✅ Canlı veriler gösteriliyor (Google Sheets)';
+            
+        } catch (error) {
+            console.log('Canlı veri alınamadı, yedek veriler kullanılıyor:', error);
+            document.getElementById('updateStatus').innerHTML = '⚠️ Canlı veri alınamadı, yedek veriler gösteriliyor';
+        }
+    }
+
+    function parseOkulCSV(csvText) {
+        const rows = Papa.parse(csvText, { skipEmptyLines: true }).data;
+        rawData = [];
+
+        for (let i = 1; i < rows.length; i++) {
+            if (rows[i].length < 12) continue;
+
+            const row = {
+                ilce: (rows[i][0] || '').trim(),
+                kurumAdi: (rows[i][2] || '').trim(),
+                kurumTuru: (rows[i][3] || 'Diğer').trim(),
+                faz1: parseInt(rows[i][4]) || 0,
+                faz2: parseInt(rows[i][5]) || 0,
+                faz3Arcelik: parseInt(rows[i][6]) || 0,
+                faz3Aidata: parseInt(rows[i][7]) || 0,
+                toplamET: parseInt(rows[i][8]) || 0,
+                btLabSayisi: parseInt(rows[i][9]) || 0,
+                btLabBilgisayar: parseInt(rows[i][10]) || 0,
+                internet: (rows[i][11] || '0').trim()
+            };
+
+            if (row.ilce === 'ANAMUR' || row.ilce === 'BOZYAZI') {
+                rawData.push(row);
+            }
+        }
+    }
+
+    function parseIlceCSV(csvText) {
+        const rows = Papa.parse(csvText, { skipEmptyLines: true }).data;
+
+        for (let i = 1; i < rows.length; i++) {
+            if (rows[i].length < 14) continue;
+
+            const ilce = (rows[i][0] || '').trim();
+            if (ilce === 'ANAMUR' || ilce === 'BOZYAZI') {
+                ilceOzetData[ilce] = {
+                    tablet: parseInt(rows[i][6]) || 0,
+                    yazici: parseInt(rows[i][7]) || 0,
+                    kamera: parseInt(rows[i][8]) || 0,
+                    zKutuphane: parseInt(rows[i][9]) || 0,
+                    adsl: parseInt(rows[i][10]) || 0,
+                    fatih: parseInt(rows[i][11]) || 0,
+                    uydu: parseInt(rows[i][12]) || 0,
+                    yok: parseInt(rows[i][13]) || 0
+                };
+            }
+        }
+    }
+
+    function updateKurumTuruFilter() {
         const turSet = new Set();
         rawData.forEach(r => {
             if (r.kurumTuru) turSet.add(r.kurumTuru);
         });
         uniqueKurumTurleri = Array.from(turSet).sort();
         
-        // Kurum türü filtresini doldur
         const turFilter = document.getElementById('kurumTuruFilter');
         turFilter.innerHTML = '<option value="TÜMÜ">Tüm Kurumlar</option>';
         uniqueKurumTurleri.forEach(tur => {
             turFilter.innerHTML += `<option value="${tur}">${tur}</option>`;
         });
-
-        // Özetleri ve tabloyu güncelle
-        updateSummaries();
-        renderTable();
-        
-        document.getElementById('lastUpdate').innerHTML = `🔄 Yedek veriler gösteriliyor (${new Date().toLocaleString('tr-TR')})`;
-    }
-
-    function tryLoadLiveData() {
-        // Bu fonksiyon şu an boş, JSONP ile canlı veri çekmeyi sonra ekleyeceğiz
-        // Şimdilik yedek veriler çalışsın
-        console.log('Canlı veri çekme hazırlanıyor...');
     }
 
     function updateSummaries() {
@@ -621,7 +706,7 @@
         document.getElementById('bozyaziBtLab').innerText = bozyaziData.reduce((acc, r) => acc + r.btLabSayisi, 0);
         document.getElementById('bozyaziBtBilg').innerText = bozyaziData.reduce((acc, r) => acc + r.btLabBilgisayar, 0);
 
-        // İlçe özet bilgileri (Anamur)
+        // İlçe özet bilgileri
         if (ilceOzetData.ANAMUR) {
             document.getElementById('anamurTablet').innerText = ilceOzetData.ANAMUR.tablet;
             document.getElementById('anamurYazici').innerText = ilceOzetData.ANAMUR.yazici;
@@ -633,7 +718,6 @@
             document.getElementById('anamurYok').innerText = ilceOzetData.ANAMUR.yok;
         }
 
-        // İlçe özet bilgileri (Bozyazı)
         if (ilceOzetData.BOZYAZI) {
             document.getElementById('bozyaziTablet').innerText = ilceOzetData.BOZYAZI.tablet;
             document.getElementById('bozyaziYazici').innerText = ilceOzetData.BOZYAZI.yazici;
@@ -723,7 +807,6 @@
 
         document.getElementById('tableBody').innerHTML = html;
 
-        // Tıklama olaylarını ekle
         document.querySelectorAll('.district-row').forEach(row => {
             row.addEventListener('click', function() {
                 const ilce = this.dataset.ilce;
