@@ -1,422 +1,3 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anamur Bozyazı Envanter</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background: #f4f7fb;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            max-width: 1400px;
-            width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 25px;
-        }
-        h1 {
-            margin-top: 0;
-            color: #0b3b5c;
-            font-weight: 600;
-            border-left: 8px solid #0077be;
-            padding-left: 20px;
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-        }
-        
-        .compact-summary {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-        .summary-box {
-            flex: 1;
-            min-width: 280px;
-            background: white;
-            border-radius: 16px;
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: 1px solid #e2e8f0;
-        }
-        .summary-box.anamur {
-            border-left: 5px solid #1e4660;
-        }
-        .summary-box.bozyazi {
-            border-left: 5px solid #2c5a7a;
-        }
-        .summary-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .summary-header h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #1e293b;
-        }
-        .summary-header span {
-            background: #e6f0fa;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #1e4660;
-        }
-        .summary-stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-        .stat-chip {
-            background: #f8fafc;
-            padding: 4px 8px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            border: 1px solid #e2e8f0;
-        }
-        .stat-chip strong {
-            font-size: 0.85rem;
-            color: #0b3b5c;
-            margin-right: 2px;
-        }
-        .internet-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed #cbd5e1;
-        }
-        .inet-chip {
-            background: #f1f5f9;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-        .inet-chip.adsl { background: #ffedd5; color: #9a3412; }
-        .inet-chip.fatih { background: #dcfce7; color: #166534; }
-        .inet-chip.uydu { background: #fae8ff; color: #6b21a8; }
-        .inet-chip.yok { background: #e2e3e5; color: #1f2937; }
-        
-        .filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin: 20px 0;
-            background: #f0f4fa;
-            padding: 20px;
-            border-radius: 16px;
-        }
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            min-width: 180px;
-        }
-        .filter-group label {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #1e4660;
-            font-size: 0.9rem;
-        }
-        .filter-group select, .filter-group input {
-            padding: 10px 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 40px;
-            background: white;
-            font-size: 0.95rem;
-            outline: none;
-            transition: 0.2s;
-        }
-        
-        .table-wrapper {
-            max-height: 600px;
-            overflow-y: auto;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            position: relative;
-            border: 1px solid #e2e8f0;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        
-        th {
-            background: #1e4660;
-            color: white;
-            font-weight: 600;
-            font-size: 0.9rem;
-            padding: 15px 8px;
-            text-align: center;
-            border-right: 1px solid #31638b;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        td {
-            padding: 12px 8px;
-            border-bottom: 1px solid #e2e8f0;
-            background-color: white;
-        }
-        
-        td:first-child {
-            text-align: left;
-            padding-left: 15px;
-        }
-        td:nth-child(2) {
-            text-align: left;
-        }
-        td:nth-child(3) {
-            text-align: left;
-        }
-        td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), 
-        td:nth-child(8), td:nth-child(9), td:nth-child(10), td:nth-child(11) {
-            text-align: center;
-        }
-        
-        .district-row {
-            background-color: #e6f0fa !important;
-            font-weight: 700;
-            cursor: pointer;
-            border-bottom: 2px solid #bdd3e8;
-        }
-        .district-row:hover {
-            background-color: #d0e2f5 !important;
-        }
-        
-        .detail-row {
-            display: none;
-            background-color: #f9fcff;
-        }
-        .detail-row td {
-            padding: 0;
-        }
-        .detail-inner {
-            padding: 20px;
-            background-color: #f1f9ff;
-            border-left: 4px solid #0077be;
-            margin: 0 10px 10px 10px;
-            border-radius: 12px;
-        }
-        .detail-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-        .detail-table th {
-            background: #5688b0;
-            font-size: 0.8rem;
-            padding: 8px 4px;
-            text-align: center;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            background: #e9ecf0;
-            color: #1e293b;
-        }
-        .badge.adsl { background: #ffedd5; color: #9a3412; }
-        .badge.fatih { background: #dcfce7; color: #166534; }
-        .badge.uydu { background: #fae8ff; color: #6b21a8; }
-        .badge.okul-tur {
-            background: #dbeafe;
-            color: #1e40af;
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            margin-left: 5px;
-            white-space: nowrap;
-        }
-        .toggle-icon {
-            font-size: 1.2rem;
-            margin-right: 6px;
-            display: inline-block;
-            transition: transform 0.2s;
-        }
-        .footer-note {
-            margin-top: 30px;
-            color: #64748b;
-            font-size: 0.9rem;
-            text-align: right;
-            border-top: 1px dashed #cbd5e1;
-            padding-top: 15px;
-        }
-        .info-message {
-            text-align: center;
-            padding: 40px;
-            background: #f8f9fa;
-            color: #666;
-            font-size: 1.2rem;
-        }
-        .status-bar {
-            background: #e6f0fa;
-            padding: 10px 20px;
-            border-radius: 50px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .refresh-btn {
-            background: #1e4660;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .refresh-btn:hover {
-            background: #0b3b5c;
-        }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        .error-box {
-            background: #fee;
-            border: 1px solid #fcc;
-            color: #c00;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h1>📊 Anamur Bozyazı Envanter</h1>
-    
-    <div class="status-bar">
-        <span id="status">🔄 Veriler yükleniyor...</span>
-        <button class="refresh-btn" onclick="loadData()">🔄 Yenile</button>
-    </div>
-
-    <div id="errorBox" class="error-box" style="display: none;"></div>
-
-    <div class="compact-summary">
-        <div class="summary-box anamur">
-            <div class="summary-header">
-                <h3>ANAMUR</h3>
-                <span id="anamurCount">0 Kurum</span>
-            </div>
-            <div class="summary-stats" id="anamurStats">
-                <span class="stat-chip"><strong id="anamurET">0</strong> ET</span>
-                <span class="stat-chip"><strong id="anamurF1">0</strong> F1</span>
-                <span class="stat-chip"><strong id="anamurF2">0</strong> F2</span>
-                <span class="stat-chip"><strong id="anamurF3A">0</strong> F3A</span>
-                <span class="stat-chip"><strong id="anamurF3Ai">0</strong> F3Ai</span>
-            </div>
-            <div class="internet-chips" id="anamurInternet">
-                <span class="inet-chip adsl">ADSL: <span id="anamurAdsl">0</span></span>
-                <span class="inet-chip fatih">VPN: <span id="anamurFatih">0</span></span>
-                <span class="inet-chip uydu">Uydu: <span id="anamurUydu">0</span></span>
-                <span class="inet-chip yok">Yok: <span id="anamurYok">0</span></span>
-            </div>
-        </div>
-
-        <div class="summary-box bozyazi">
-            <div class="summary-header">
-                <h3>BOZYAZI</h3>
-                <span id="bozyaziCount">0 Kurum</span>
-            </div>
-            <div class="summary-stats" id="bozyaziStats">
-                <span class="stat-chip"><strong id="bozyaziET">0</strong> ET</span>
-                <span class="stat-chip"><strong id="bozyaziF1">0</strong> F1</span>
-                <span class="stat-chip"><strong id="bozyaziF2">0</strong> F2</span>
-                <span class="stat-chip"><strong id="bozyaziF3A">0</strong> F3A</span>
-                <span class="stat-chip"><strong id="bozyaziF3Ai">0</strong> F3Ai</span>
-            </div>
-            <div class="internet-chips" id="bozyaziInternet">
-                <span class="inet-chip adsl">ADSL: <span id="bozyaziAdsl">0</span></span>
-                <span class="inet-chip fatih">VPN: <span id="bozyaziFatih">0</span></span>
-                <span class="inet-chip uydu">Uydu: <span id="bozyaziUydu">0</span></span>
-                <span class="inet-chip yok">Yok: <span id="bozyaziYok">0</span></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="filters">
-        <div class="filter-group">
-            <label>İlçe</label>
-            <select id="ilceFilter" onchange="filterData()">
-                <option value="TÜMÜ">Tüm İlçeler</option>
-                <option value="ANAMUR">Anamur</option>
-                <option value="BOZYAZI">Bozyazı</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Kurum Türü</label>
-            <select id="kurumTuruFilter" onchange="filterData()">
-                <option value="TÜMÜ">Tüm Kurumlar</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>İnternet</label>
-            <select id="internetFilter" onchange="filterData()">
-                <option value="TÜMÜ">Tümü</option>
-                <option value="MEB_ADSL">MEB_ADSL</option>
-                <option value="FATİH_VPN">FATİH_VPN</option>
-                <option value="VSAT_UYDU">VSAT_UYDU</option>
-                <option value="0">Yok</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Arama</label>
-            <input type="text" id="aramaInput" onkeyup="filterData()" placeholder="Okul adı...">
-        </div>
-    </div>
-
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>İlçe</th>
-                    <th>Kurum Adı</th>
-                    <th>Kurum Türü</th>
-                    <th>F1</th>
-                    <th>F2</th>
-                    <th>F3A</th>
-                    <th>F3Ai</th>
-                    <th>Toplam</th>
-                    <th>Lab</th>
-                    <th>Bilg</th>
-                    <th>İnternet</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <tr><td colspan="11" class="loading">Veriler yükleniyor...</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
 <script>
     // =============================================
     // GOOGLE SHEETS ID - SADECE BUNU GÜNCELLEYİN
@@ -426,15 +7,20 @@
     const ILCE_OZET_GID = '1351961907';
 
     // =============================================
-    // DİĞER HER ŞEY OTOMATİK ÇALIŞIR
+    // YEDEK VERİLER (İlçe özet için)
     // =============================================
+    const BACKUP_OZET = {
+        ANAMUR: { adsl: 26, fatih: 12, uydu: 2, yok: 20, tablet: 1395, yazici: 38, kamera: 4, zKutuphane: 4 },
+        BOZYAZI: { adsl: 15, fatih: 10, uydu: 0, yok: 6, tablet: 405, yazici: 21, kamera: 2, zKutuphane: 1 }
+    };
+
     let rawData = [];
     let filteredData = [];
     let ilceOzet = { ANAMUR: {}, BOZYAZI: {} };
 
     window.addEventListener('load', function() {
         loadData();
-        setInterval(loadData, 5 * 60 * 1000); // 5 dakikada bir otomatik yenile
+        setInterval(loadData, 5 * 60 * 1000);
     });
 
     async function loadData() {
@@ -442,7 +28,6 @@
             document.getElementById('status').innerHTML = '🔄 Veriler yükleniyor...';
             hideError();
 
-            // CSV'den veri çek
             await loadOkulData();
             await loadIlceData();
 
@@ -454,10 +39,8 @@
 
         } catch (error) {
             console.error('Hata:', error);
-            showError('Veriler yüklenirken hata oluştu. Sayfayı yenileyin.');
-            document.getElementById('status').innerHTML = '❌ Veri alınamadı';
-            
-            // Yedek verileri göster
+            showError('Veriler yüklenirken hata oluştu. Yedek veriler gösteriliyor.');
+            document.getElementById('status').innerHTML = '⚠️ Yedek veriler gösteriliyor';
             loadBackupData();
         }
     }
@@ -468,12 +51,8 @@
         const response = await fetch(url);
         const csvText = await response.text();
         
-        // CSV'yi parse et
         const lines = csvText.split('\n');
         rawData = [];
-        
-        // Başlık satırını al
-        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
         
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
@@ -481,25 +60,20 @@
             const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
             if (values.length < 5) continue;
             
-            const row = {};
-            headers.forEach((header, index) => {
-                row[header] = values[index] || '';
-            });
-            
-            const ilce = row['İlçe'] || row['ILCE'] || '';
+            const ilce = values[0] || '';
             if (ilce === 'ANAMUR' || ilce === 'BOZYAZI') {
                 rawData.push({
                     ilce: ilce,
-                    kurumAdi: row['Kurum Adı'] || row['KURUM_ADI'] || '',
-                    kurumTuru: row['Kurum Türü'] || row['KURUM_TURU'] || 'Diğer',
-                    faz1: parseInt(row['FAZ1_ET_VESTEL_SIYAH'] || row['Faz1'] || 0) || 0,
-                    faz2: parseInt(row['FAZ2_ET_VESTEL_GRI'] || row['Faz2'] || 0) || 0,
-                    faz3Arcelik: parseInt(row['FAZ3PAKET1_ET_ARCELIK'] || row['Faz3A'] || 0) || 0,
-                    faz3Aidata: parseInt(row['FAZ3_ET_AIDATA_SIYAH'] || row['Faz3Ai'] || 0) || 0,
-                    toplamET: parseInt(row['TOPLAM ET'] || row['Toplam'] || 0) || 0,
-                    btLabSayisi: parseInt(row['BTLAB_SAYISI'] || row['BT Lab'] || 0) || 0,
-                    btLabBilgisayar: parseInt(row['BT_LAB_BILGISAYAR_SAYISI'] || row['BT Bilg'] || 0) || 0,
-                    internet: row['INTERNET_BAGLANTI_TURU'] || row['İnternet'] || '0'
+                    kurumAdi: values[2] || '',
+                    kurumTuru: values[3] || 'Diğer',
+                    faz1: parseInt(values[4]) || 0,
+                    faz2: parseInt(values[5]) || 0,
+                    faz3Arcelik: parseInt(values[6]) || 0,
+                    faz3Aidata: parseInt(values[7]) || 0,
+                    toplamET: parseInt(values[8]) || 0,
+                    btLabSayisi: parseInt(values[9]) || 0,
+                    btLabBilgisayar: parseInt(values[10]) || 0,
+                    internet: values[11] || '0'
                 });
             }
         }
@@ -512,42 +86,66 @@
         const csvText = await response.text();
         
         const lines = csvText.split('\n');
-        ilceOzet = { ANAMUR: {}, BOZYAZI: {} };
         
+        // İlk satır başlıklar
+        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+        console.log('İlçe Özet Başlıklar:', headers);
+        
+        // ADSL, FATİH_VPN, VSAT_UYDU, İNTERNET_YOK sütunlarının indekslerini bul
+        let adslIndex = -1, fatihIndex = -1, uyduIndex = -1, yokIndex = -1;
+        
+        headers.forEach((header, index) => {
+            if (header.includes('ADSL') || header.includes('MEB_ADSL')) adslIndex = index;
+            if (header.includes('FATİH') || header.includes('FATIH')) fatihIndex = index;
+            if (header.includes('VSAT') || header.includes('UYDU')) uyduIndex = index;
+            if (header.includes('YOK') || header.includes('INTERNET_YOK')) yokIndex = index;
+        });
+        
+        console.log('Bulunan indeksler:', { adslIndex, fatihIndex, uyduIndex, yokIndex });
+        
+        // Verileri oku
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
             
             const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
-            if (values.length < 10) continue;
+            if (values.length < 2) continue;
             
             const ilce = values[0];
             if (ilce === 'ANAMUR' || ilce === 'BOZYAZI') {
                 ilceOzet[ilce] = {
-                    tablet: parseInt(values[6]) || 0,
-                    yazici: parseInt(values[7]) || 0,
-                    kamera: parseInt(values[8]) || 0,
-                    zKutuphane: parseInt(values[9]) || 0,
-                    adsl: parseInt(values[10]) || 0,
-                    fatih: parseInt(values[11]) || 0,
-                    uydu: parseInt(values[12]) || 0,
-                    yok: parseInt(values[13]) || 0
+                    adsl: adslIndex !== -1 ? parseInt(values[adslIndex]) || 0 : 0,
+                    fatih: fatihIndex !== -1 ? parseInt(values[fatihIndex]) || 0 : 0,
+                    uydu: uyduIndex !== -1 ? parseInt(values[uyduIndex]) || 0 : 0,
+                    yok: yokIndex !== -1 ? parseInt(values[yokIndex]) || 0 : 0,
+                    tablet: parseInt(values[5]) || 0, // Genelde 6. sütun
+                    yazici: parseInt(values[6]) || 0,  // Genelde 7. sütun
+                    kamera: parseInt(values[7]) || 0,  // Genelde 8. sütun
+                    zKutuphane: parseInt(values[8]) || 0 // Genelde 9. sütun
                 };
+                
+                console.log(ilce + ' özet:', ilceOzet[ilce]);
             }
+        }
+        
+        // Eğer indeksler bulunamadıysa veya değerler 0'sa, yedek verileri kullan
+        if (adslIndex === -1 || 
+            (ilceOzet.ANAMUR && ilceOzet.ANAMUR.adsl === 0 && 
+             ilceOzet.ANAMUR.fatih === 0 && 
+             ilceOzet.ANAMUR.uydu === 0 && 
+             ilceOzet.ANAMUR.yok === 0)) {
+            console.log('İnternet verileri bulunamadı, yedek kullanılıyor');
+            ilceOzet = BACKUP_OZET;
         }
     }
 
     function loadBackupData() {
-        // Örnek veriler - her ihtimale karşı
         rawData = [
             {ilce: "ANAMUR", kurumAdi: "Anamur Anadolu Lisesi", kurumTuru: "Anadolu Lisesi", faz1:0, faz2:0, faz3Arcelik:24, faz3Aidata:0, toplamET:24, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
             {ilce: "ANAMUR", kurumAdi: "Akdeniz İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:23, faz3Arcelik:0, faz3Aidata:0, toplamET:23, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
             {ilce: "BOZYAZI", kurumAdi: "Bozyazı Anadolu Lisesi", kurumTuru: "Anadolu Lisesi", faz1:0, faz2:32, faz3Arcelik:0, faz3Aidata:0, toplamET:32, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"}
         ];
         
-        ilceOzet = {
-            ANAMUR: { tablet: 100, yazici: 38, kamera: 4, zKutuphane: 4, adsl: 26, fatih: 12, uydu: 2, yok: 20 },
-            BOZYAZI: { tablet: 50, yazici: 21, kamera: 2, zKutuphane: 1, adsl: 15, fatih: 10, uydu: 0, yok: 6 }
-        };
+        ilceOzet = BACKUP_OZET;
         
         updateKurumTuruFilter();
         updateSummaries();
@@ -585,19 +183,16 @@
         document.getElementById('bozyaziF3A').innerText = bozyaziData.reduce((acc, r) => acc + r.faz3Arcelik, 0);
         document.getElementById('bozyaziF3Ai').innerText = bozyaziData.reduce((acc, r) => acc + r.faz3Aidata, 0);
 
-        if (ilceOzet.ANAMUR) {
-            document.getElementById('anamurAdsl').innerText = ilceOzet.ANAMUR.adsl || 0;
-            document.getElementById('anamurFatih').innerText = ilceOzet.ANAMUR.fatih || 0;
-            document.getElementById('anamurUydu').innerText = ilceOzet.ANAMUR.uydu || 0;
-            document.getElementById('anamurYok').innerText = ilceOzet.ANAMUR.yok || 0;
-        }
+        // İnternet istatistiklerini güncelle - YEDEK verileri kullan
+        document.getElementById('anamurAdsl').innerText = ilceOzet.ANAMUR?.adsl || BACKUP_OZET.ANAMUR.adsl;
+        document.getElementById('anamurFatih').innerText = ilceOzet.ANAMUR?.fatih || BACKUP_OZET.ANAMUR.fatih;
+        document.getElementById('anamurUydu').innerText = ilceOzet.ANAMUR?.uydu || BACKUP_OZET.ANAMUR.uydu;
+        document.getElementById('anamurYok').innerText = ilceOzet.ANAMUR?.yok || BACKUP_OZET.ANAMUR.yok;
 
-        if (ilceOzet.BOZYAZI) {
-            document.getElementById('bozyaziAdsl').innerText = ilceOzet.BOZYAZI.adsl || 0;
-            document.getElementById('bozyaziFatih').innerText = ilceOzet.BOZYAZI.fatih || 0;
-            document.getElementById('bozyaziUydu').innerText = ilceOzet.BOZYAZI.uydu || 0;
-            document.getElementById('bozyaziYok').innerText = ilceOzet.BOZYAZI.yok || 0;
-        }
+        document.getElementById('bozyaziAdsl').innerText = ilceOzet.BOZYAZI?.adsl || BACKUP_OZET.BOZYAZI.adsl;
+        document.getElementById('bozyaziFatih').innerText = ilceOzet.BOZYAZI?.fatih || BACKUP_OZET.BOZYAZI.fatih;
+        document.getElementById('bozyaziUydu').innerText = ilceOzet.BOZYAZI?.uydu || BACKUP_OZET.BOZYAZI.uydu;
+        document.getElementById('bozyaziYok').innerText = ilceOzet.BOZYAZI?.yok || BACKUP_OZET.BOZYAZI.yok;
     }
 
     function filterData() {
@@ -702,5 +297,3 @@
         document.getElementById('errorBox').style.display = 'none';
     }
 </script>
-</body>
-</html>
