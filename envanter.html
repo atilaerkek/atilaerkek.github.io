@@ -34,20 +34,21 @@
             padding-left: 20px;
             font-size: 1.8rem;
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
-        .status-bar {
+        .update-date {
             background: #e6f0fa;
-            padding: 10px 20px;
-            border-radius: 50px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .status-bar span {
             color: #1e4660;
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 0.8rem;
             font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .compact-summary {
@@ -298,11 +299,10 @@
 </head>
 <body>
 <div class="container">
-    <h1>📊 Anamur Bozyazı Envanter (Güncel)</h1>
-    
-    <div class="status-bar">
-        <span>✅ Veriler 2025 itibarıyla güncellenmiştir</span>
-    </div>
+    <h1>
+        📊 Anamur Bozyazı Envanter
+        <span class="update-date">📅 Son Güncelleme: 1 Mart 2025</span>
+    </h1>
 
     <!-- Özetler - GÜNCEL VERİLER -->
     <div class="compact-summary">
@@ -416,7 +416,7 @@
     </div>
     
     <div class="footer-note">
-        📊 Güncelleme: Mart 2025 • Excel güncellendiğinde bana gönderin, ben size yeni HTML veririm
+        📊 Güncelleme: 1 Mart 2025 • Excel güncellendiğinde bana gönderin, ben size yeni HTML veririm
     </div>
 </div>
 
