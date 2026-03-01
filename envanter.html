@@ -1,7 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anamur Bozyazı Envanter</title>
+    
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+        h1 {
+            margin-top: 0;
+            color: #0b3b5c;
+            border-left: 8px solid #0077be;
+            padding-left: 20px;
+            font-size: 1.8rem;
+        }
+        .status-bar {
+            background: #e6f0fa;
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .refresh-btn {
+            background: #1e4660;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .summary-box {
+            border-left: 5px solid #1e4660;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .filters {
+            background: #f0f4fa;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #1e4660;
+            color: white;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 Anamur Bozyazı Envanter</h1>
+    
+    <div class="status-bar">
+        <span id="status">🔄 Veriler yükleniyor...</span>
+        <button class="refresh-btn" onclick="location.reload()">🔄 Yenile</button>
+    </div>
+
+    <div id="veriler"></div>
+
+    <div class="filters">
+        <select id="ilceFilter">
+            <option value="TÜMÜ">Tüm İlçeler</option>
+            <option value="ANAMUR">Anamur</option>
+            <option value="BOZYAZI">Bozyazı</option>
+        </select>
+        <input type="text" id="aramaInput" placeholder="Okul ara...">
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>İlçe</th>
+                <th>Kurum Adı</th>
+                <th>Kurum Türü</th>
+                <th>F1</th>
+                <th>F2</th>
+                <th>F3A</th>
+                <th>F3Ai</th>
+                <th>Toplam</th>
+                <th>İnternet</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr><td colspan="9">Yükleniyor...</td></tr>
+        </tbody>
+    </table>
+</div>
+
 <script>
-    // =============================================
-    // FIREBASE KONFİGÜRASYONU (sizin mevcut config)
-    // =============================================
+    // Firebase config
     const firebaseConfig = {
         apiKey: "AIzaSyBhgu-i_ccA6bZK3GGMKaLCJSsPRx6IC_Q",
         authDomain: "myurlsaver.firebaseapp.com",
@@ -14,61 +140,72 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // =============================================
-    // VERİLERİ FIREBASE'DEN ÇEK
-    // =============================================
     let rawData = [];
-    let ilceOzetData = { ANAMUR: {}, BOZYAZI: {} };
-    let uniqueKurumTurleri = [];
 
     window.addEventListener('load', function() {
         loadData();
-        setInterval(loadData, 5 * 60 * 1000); // 5 dakikada bir otomatik yenile
     });
 
     async function loadData() {
         try {
             document.getElementById('status').innerHTML = '🔄 Veriler yükleniyor...';
-
-            // Firestore'dan okul verilerini çek
-            const okulSnapshot = await db.collection("envanter_okullar").get();
+            
+            const snapshot = await db.collection("envanter_okullar").get();
             rawData = [];
-            okulSnapshot.forEach(doc => {
+            
+            snapshot.forEach(doc => {
                 const data = doc.data();
                 rawData.push({
                     ilce: data.ilce || '',
                     kurumAdi: data.kurumAdi || '',
-                    kurumTuru: data.kurumTuru || 'Diğer',
+                    kurumTuru: data.kurumTuru || '',
                     faz1: data.faz1 || 0,
                     faz2: data.faz2 || 0,
                     faz3Arcelik: data.faz3Arcelik || 0,
                     faz3Aidata: data.faz3Aidata || 0,
                     toplamET: data.toplamET || 0,
-                    btLabSayisi: data.btLabSayisi || 0,
-                    btLabBilgisayar: data.btLabBilgisayar || 0,
-                    internet: data.internet || '0'
+                    internet: data.internet || ''
                 });
             });
 
-            // Özet verilerini çek
-            const ozetDoc = await db.collection("envanter_ozet").doc("istatistikler").get();
-            if (ozetDoc.exists) {
-                ilceOzetData = ozetDoc.data();
-            }
-
-            // Kurum türlerini güncelle
-            updateKurumTuruFilter();
-            updateSummaries();
             renderTable();
-
-            document.getElementById('status').innerHTML = `✅ Son güncelleme: ${new Date().toLocaleString('tr-TR')}`;
+            document.getElementById('status').innerHTML = `✅ ${rawData.length} okul yüklendi`;
 
         } catch (error) {
-            console.error('Hata:', error);
-            document.getElementById('status').innerHTML = '❌ Veri alınamadı!';
+            document.getElementById('status').innerHTML = '❌ Hata: ' + error.message;
         }
     }
 
-    // Bu fonksiyonları da ekleyin (daha önceki kodunuzda varsa aynen kullanın)
-    // updateKurumTuruFilter(), updateSummaries(), renderTable(), filterData(), toggleDetail()
+    function renderTable() {
+        const ilce = document.getElementById('ilceFilter').value;
+        const arama = document.getElementById('aramaInput').value.toLowerCase();
+
+        const filtered = rawData.filter(r => {
+            if (ilce !== 'TÜMÜ' && r.ilce !== ilce) return false;
+            if (arama && !r.kurumAdi.toLowerCase().includes(arama)) return false;
+            return true;
+        });
+
+        let html = '';
+        filtered.forEach(o => {
+            html += `<tr>
+                <td>${o.ilce}</td>
+                <td>${o.kurumAdi}</td>
+                <td>${o.kurumTuru}</td>
+                <td>${o.faz1}</td>
+                <td>${o.faz2}</td>
+                <td>${o.faz3Arcelik}</td>
+                <td>${o.faz3Aidata}</td>
+                <td>${o.toplamET}</td>
+                <td>${o.internet}</td>
+            </tr>`;
+        });
+
+        document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="9">Veri yok</td></tr>';
+    }
+
+    document.getElementById('ilceFilter').addEventListener('change', renderTable);
+    document.getElementById('aramaInput').addEventListener('keyup', renderTable);
 </script>
+</body>
+</html>
