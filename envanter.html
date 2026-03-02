@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anamur Bozyazı Envanter</title>
     <style>
-        /* Tasarım aynen korundu */
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -290,10 +289,10 @@
 <div class="container">
     <h1>
         📊 Anamur Bozyazı Envanter
-        <span class="update-date">📅 1 Mart 2026</span>
+        <span class="update-date">📅 2 Mart 2026</span>
     </h1>
 
-    <!-- Özetler -->
+    <!-- Özetler - PDF'den doğrulanmış veriler -->
     <div class="compact-summary">
         <div class="summary-box anamur">
             <div class="summary-header">
@@ -309,15 +308,15 @@
                 <span class="stat-chip"><strong>1395</strong> Tab</span>
                 <span class="stat-chip"><strong>38</strong> Yaz</span>
                 <span class="stat-chip"><strong>4</strong> Kam</span>
-                <span class="stat-chip"><strong>9</strong> Lab</span>
-                <span class="stat-chip"><strong>119</strong> Bilg</span>
+                <span class="stat-chip"><strong>10</strong> Lab</span>
+                <span class="stat-chip"><strong>139</strong> Bilg</span>
                 <span class="stat-chip"><strong>4</strong> Z-K</span>
             </div>
             <div class="internet-chips">
                 <span class="inet-chip adsl">ADSL: 27</span>
-                <span class="inet-chip fatih">VPN: 12</span>
+                <span class="inet-chip fatih">VPN: 11</span>
                 <span class="inet-chip uydu">Uydu: 2</span>
-                <span class="inet-chip yok">Yok: 18</span>
+                <span class="inet-chip yok">Yok: 19</span>
             </div>
         </div>
 
@@ -327,11 +326,11 @@
                 <span>30 Kurum</span>
             </div>
             <div class="summary-stats">
-                <span class="stat-chip"><strong>348</strong> ET</span>
+                <span class="stat-chip"><strong>355</strong> ET</span>
                 <span class="stat-chip"><strong>49</strong> F1</span>
-                <span class="stat-chip"><strong>299</strong> F2</span>
+                <span class="stat-chip"><strong>287</strong> F2</span>
                 <span class="stat-chip"><strong>0</strong> F3A</span>
-                <span class="stat-chip"><strong>0</strong> F3Ai</span>
+                <span class="stat-chip"><strong>19</strong> F3Ai</span>
                 <span class="stat-chip"><strong>405</strong> Tab</span>
                 <span class="stat-chip"><strong>21</strong> Yaz</span>
                 <span class="stat-chip"><strong>2</strong> Kam</span>
@@ -341,9 +340,9 @@
             </div>
             <div class="internet-chips">
                 <span class="inet-chip adsl">ADSL: 15</span>
-                <span class="inet-chip fatih">VPN: 10</span>
+                <span class="inet-chip fatih">VPN: 11</span>
                 <span class="inet-chip uydu">Uydu: 0</span>
-                <span class="inet-chip yok">Yok: 5</span>
+                <span class="inet-chip yok">Yok: 4</span>
             </div>
         </div>
     </div>
@@ -405,13 +404,13 @@
     </div>
     
     <div class="footer-note">
-        Okul_Özet ve İlçe_Özet sayfalarından alınmıştır
+        Okul_Özet ve İlçe_Özet sayfalarından alınmıştır • PDF ile doğrulanmıştır • Güncelleme: 2 Mart 2026
     </div>
 </div>
 
 <script>
     // =============================================
-    // TÜM VERİLER - Okul_Özet ve İlçe_Özet'ten alındı
+    // GÜNCELLENMİŞ VERİLER (PDF ile doğrulanmış)
     // =============================================
     const VERILER = [
         {ilce: "ANAMUR", kurumAdi: "Anamur Öğretmenevi ve Akşam Sanat Okulu", kurumTuru: "Akşam Sanat Okulu (DHGM)", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
@@ -443,7 +442,7 @@
         {ilce: "ANAMUR", kurumAdi: "Ortaköy Hidayet Sinanoğlu İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:1, btLabBilgisayar:10, internet: "FATİH_VPN"},
         {ilce: "ANAMUR", kurumAdi: "Kalınören İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "ANAMUR", kurumAdi: "Çarıklar Efeler İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Zehra Marulyalı İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
+        {ilce: "ANAMUR", kurumAdi: "Zehra Marulyalı İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
         {ilce: "ANAMUR", kurumAdi: "Anamur 15 Temmuz Milli İrade İlkokulu", kurumTuru: "İlkokul", faz1:3, faz2:13, faz3Arcelik:0, faz3Aidata:0, toplamET:16, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "ANAMUR", kurumAdi: "Anamur Kıbrıs İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "ANAMUR", kurumAdi: "Şehit Hasan Kuş İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:24, toplamET:24, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
@@ -466,8 +465,8 @@
         {ilce: "ANAMUR", kurumAdi: "Şehit Şükrü Ünlü Ortaokulu", kurumTuru: "Ortaokul", faz1:16, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:21, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
         {ilce: "ANAMUR", kurumAdi: "Cengiz Topel İmam Hatip Ortaokulu", kurumTuru: "İmam Hatip Ortaokulu", faz1:0, faz2:9, faz3Arcelik:0, faz3Aidata:0, toplamET:9, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "ANAMUR", kurumAdi: "Anamur Özel Eğitim Uygulama Okulu I. Kademe", kurumTuru: "Özel Eğitim Uygulama Okulu (I. Kademe)", faz1:0, faz2:0, faz3Arcelik:5, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "ANAMUR", kurumAdi: "Zehra Marulyalı Yatılı Bölge Ortaokulu", kurumTuru: "Yatılı Bölge Ortaokulu", faz1:0, faz2:20, faz3Arcelik:0, faz3Aidata:0, toplamET:20, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "ANAMUR", kurumAdi: "Şehit İbrahim Armut Fen Lisesi", kurumTuru: "Fen Lisesi", faz1:0, faz2:3, faz3Arcelik:16, faz3Aidata:0, toplamET:19, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
+        {ilce: "ANAMUR", kurumAdi: "Zehra Marulyalı Yatılı Bölge Ortaokulu", kurumTuru: "Yatılı Bölge Ortaokulu", faz1:0, faz2:20, faz3Arcelik:0, faz3Aidata:0, toplamET:20, btLabSayisi:1, btLabBilgisayar:20, internet: "FATİH_VPN"},
+        {ilce: "ANAMUR", kurumAdi: "Şehit İbrahim Armut Fen Lisesi", kurumTuru: "Fen Lisesi", faz1:0, faz2:3, faz3Arcelik:16, faz3Aidata:0, toplamET:19, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "ANAMUR", kurumAdi: "Gazi Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:0, faz2:32, faz3Arcelik:0, faz3Aidata:0, toplamET:32, btLabSayisi:3, btLabBilgisayar:49, internet: "FATİH_VPN"},
         {ilce: "ANAMUR", kurumAdi: "Anamur Ticaret Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:0, faz2:26, faz3Arcelik:0, faz3Aidata:0, toplamET:26, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
         {ilce: "ANAMUR", kurumAdi: "Valide Sultan Kız Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:0, faz2:18, faz3Arcelik:0, faz3Aidata:0, toplamET:18, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
@@ -483,14 +482,14 @@
         {ilce: "BOZYAZI", kurumAdi: "Hüseyin Hüsnü Tekışık İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:8, faz3Arcelik:0, faz3Aidata:0, toplamET:8, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "BOZYAZI", kurumAdi: "Kökobası İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:21, faz3Arcelik:0, faz3Aidata:0, toplamET:21, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "BOZYAZI", kurumAdi: "Tekeli İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
-        {ilce: "BOZYAZI", kurumAdi: "Tekmen İlkokulu", kurumTuru: "İlkokul", faz1:2, faz2:8, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
+        {ilce: "BOZYAZI", kurumAdi: "Tekmen İlkokulu", kurumTuru: "İlkokul", faz1:2, faz2:8, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
         {ilce: "BOZYAZI", kurumAdi: "Vali Çetin Birmek İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:14, faz3Arcelik:0, faz3Aidata:0, toplamET:14, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
         {ilce: "BOZYAZI", kurumAdi: "100. Yıl Örtülü İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:6, faz3Arcelik:0, faz3Aidata:0, toplamET:6, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "BOZYAZI", kurumAdi: "Cumhuriyet İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
         {ilce: "BOZYAZI", kurumAdi: "Kötekler İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
         {ilce: "BOZYAZI", kurumAdi: "Çopurlu İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:11, faz3Arcelik:0, faz3Aidata:0, toplamET:11, btLabSayisi:1, btLabBilgisayar:16, internet: "MEB_ADSL"},
         {ilce: "BOZYAZI", kurumAdi: "Kaledibi Şehit Turhan Kılıç İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
-        {ilce: "BOZYAZI", kurumAdi: "Beyreli İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:6, faz3Arcelik:0, faz3Aidata:0, toplamET:6, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
+        {ilce: "BOZYAZI", kurumAdi: "Beyreli İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:5, faz3Arcelik:0, faz3Aidata:0, toplamET:5, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "BOZYAZI", kurumAdi: "Lütfiye Keskin İlkokulu", kurumTuru: "İlkokul", faz1:0, faz2:17, faz3Arcelik:0, faz3Aidata:0, toplamET:17, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "BOZYAZI", kurumAdi: "Bozyazı Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:42, faz3Arcelik:0, faz3Aidata:0, toplamET:42, btLabSayisi:1, btLabBilgisayar:20, internet: "FATİH_VPN"},
         {ilce: "BOZYAZI", kurumAdi: "Kökobası Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:0, btLabSayisi:0, btLabBilgisayar:0, internet: "0"},
@@ -499,7 +498,7 @@
         {ilce: "BOZYAZI", kurumAdi: "Atatürk Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:10, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "BOZYAZI", kurumAdi: "Gazi Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:7, faz3Arcelik:0, faz3Aidata:0, toplamET:7, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
         {ilce: "BOZYAZI", kurumAdi: "Şehit Murat Namdar Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:14, faz3Arcelik:0, faz3Aidata:0, toplamET:14, btLabSayisi:0, btLabBilgisayar:0, internet: "FATİH_VPN"},
-        {ilce: "BOZYAZI", kurumAdi: "Tekeli Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:11, faz3Arcelik:0, faz3Aidata:0, toplamET:11, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
+        {ilce: "BOZYAZI", kurumAdi: "Tekeli Ortaokulu", kurumTuru: "Ortaokul", faz1:0, faz2:0, faz3Arcelik:0, faz3Aidata:19, toplamET:19, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "BOZYAZI", kurumAdi: "Tekmen Ortaokulu", kurumTuru: "Ortaokul", faz1:14, faz2:0, faz3Arcelik:0, faz3Aidata:0, toplamET:14, btLabSayisi:1, btLabBilgisayar:7, internet: "FATİH_VPN"},
         {ilce: "BOZYAZI", kurumAdi: "Bozyazı 15 Temmuz Millî İrade Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:3, faz2:9, faz3Arcelik:0, faz3Aidata:0, toplamET:12, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"},
         {ilce: "BOZYAZI", kurumAdi: "Bozyazı Mesleki ve Teknik Anadolu Lisesi", kurumTuru: "Anadolu Meslek Programı", faz1:5, faz2:10, faz3Arcelik:0, faz3Aidata:0, toplamET:15, btLabSayisi:0, btLabBilgisayar:0, internet: "MEB_ADSL"}
